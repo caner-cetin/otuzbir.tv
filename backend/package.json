@@ -1,0 +1,38 @@
+{
+  "name": "server",
+  "scripts": {
+    "dev": "bun run --hot src/index.ts",
+    "debug": "bun run --inspect src/index.ts",
+    "start": "bun run src/index.ts"
+  },
+  "dependencies": {
+    "@fastify/autoload": "^6.0.2",
+    "@fastify/cookie": "^11.0.1",
+    "@fastify/cors": "^10.0.1",
+    "@fastify/jwt": "^9.0.1",
+    "@fastify/websocket": "^11.0.1",
+    "@types/ws": "^8.5.12",
+    "acquerello": "^2.0.8",
+    "argon2": "^0.41.1",
+    "bcrypt": "^5.1.1",
+    "dayjs": "^1.11.13",
+    "fastify": "^5.0.0",
+    "fastify-raw-body": "^5.0.0",
+    "fastify-zod": "^1.4.0",
+    "jsonwebtoken": "^9.0.2",
+    "kysely": "^0.27.4",
+    "pg": "^8.13.0",
+    "pyright": "^1.1.384",
+    "table": "^6.8.2",
+    "uuid": "^10.0.0",
+    "vscode-languageserver-protocol": "^3.17.5",
+    "vscode-ws-jsonrpc": "^3.3.2",
+    "zod": "^3.23.8"
+  },
+  "devDependencies": {
+    "@types/bun": "latest",
+    "@types/pg": "^8.11.10"
+  },
+  "main": "src/index.ts",
+  "type": "module"
+}

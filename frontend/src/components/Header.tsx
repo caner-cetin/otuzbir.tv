@@ -1,0 +1,52 @@
+import React from 'react';
+import { LogIn, UserPlus, User } from 'lucide-react';
+import Dropdown from 'react-bootstrap/Dropdown';
+import ButtonGroup from 'react-bootstrap/ButtonGroup';
+import Button from 'react-bootstrap/Button';
+interface HeaderProps {
+  isAuthenticated: boolean;
+  user: { username: string } | null;
+  onLogin: () => void;
+  onSignup: () => void;
+  onLogout: () => void;
+}
+
+export default function Header({ isAuthenticated, user, onLogin, onSignup, onLogout }: HeaderProps) {
+  return (
+    <header className="w-full bg-[#211e20] border-b border-[#555568] p-2">
+      <div className="flex justify-between items-center">
+        <div className="text-[#a0a08b]">PIP-OS v7.1.0.8</div>
+        <Dropdown as={ButtonGroup}>
+          <Dropdown.Toggle variant="success" id="dropdown-basic" >
+            Languages
+          </Dropdown.Toggle>
+          <Dropdown.Menu>
+            <Dropdown.Item onClick={() => console.log("piton")}>Python (w/ LSP)</Dropdown.Item>
+          </Dropdown.Menu>
+        </Dropdown>
+        <Button variant="secondary">Submit</Button>
+        <div className="flex items-center">
+          {isAuthenticated && user ? (
+            <div className="flex items-center mr-4">
+              <User className="w-5 h-5 text-[#a0a08b] mr-2" />
+              <span className="text-[#a0a08b]">{user.username}</span>
+              <button type='button' onClick={onLogout} className="ml-4 text-[#a0a08b] hover:text-[#e9efec]">
+                LOGOUT
+              </button>
+            </div>
+          ) : (
+            <div className="flex items-center mr-4">
+              <button type='button' onClick={onLogin} className="mr-2">
+                <LogIn className="w-5 h-5 text-[#a0a08b] hover:text-[#e9efec]" />
+              </button>
+              <button type='button' onClick={onSignup}>
+                <UserPlus className="w-5 h-5 text-[#a0a08b] hover:text-[#e9efec]" />
+              </button>
+            </div>
+          )}
+          <div className="text-[#a0a08b]">{new Date().toLocaleTimeString()}</div>
+        </div>
+      </div>
+    </header>
+  );
+}

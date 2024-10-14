@@ -1,0 +1,9 @@
+# deps
+node_modules/
+.env
+data
+node_modules
+build
+.DS_Store
+fly.toml
+judge0.conf
