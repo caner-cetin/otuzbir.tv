@@ -15,8 +15,14 @@ import {
 	WebSocketMessageReader,
 	WebSocketMessageWriter,
 } from "vscode-ws-jsonrpc";
-import type { MonacoEditorWrapperProps } from "../components/Editor";
 import { configureMonacoWorkers } from "./configureLSPWorkers";
+
+interface MonacoEditorWrapperProps {
+	lspSecured: boolean;
+	lspHost: string;
+	lspPort: number;
+	lspPath: string;
+}
 
 export const VSConfig = (
 	workspaceRoot: string,

@@ -7,9 +7,6 @@ import '@codingame/monaco-vscode-python-default-extension';
 import { createFileRoute } from '@tanstack/react-router'
 import { MonacoEditorLanguageClientWrapper } from 'monaco-editor-wrapper'
 import { VSConfig } from '../editor/python'
-import { RegisteredFileSystemProvider, RegisteredMemoryFile, registerFileSystemOverlay } from '@codingame/monaco-vscode-files-service-override'
-import * as vscode from 'vscode';
-import ReactDOM from 'react-dom'
 export const Route = createFileRoute('/code')({
   component: MonacoPage,
 })
@@ -31,9 +28,6 @@ export default function MonacoPage() {
   useEffect(() => {
     const initEditor = async () => {
       if (editorRef.current) return;
-      const fileSystemProvider = new RegisteredFileSystemProvider(false);
-      fileSystemProvider.registerFile(new RegisteredMemoryFile(vscode.Uri.file('/workspace/script.py'), "print('Hello, World!')"));
-      registerFileSystemOverlay(1, fileSystemProvider);
       await wrapper.init(wrapperConfig);
       await wrapper.start();
       setEditorReady(true);
