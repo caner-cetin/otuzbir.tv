@@ -3,28 +3,45 @@ import { LogIn, UserPlus, User } from 'lucide-react';
 import Dropdown from 'react-bootstrap/Dropdown';
 import ButtonGroup from 'react-bootstrap/ButtonGroup';
 import Button from 'react-bootstrap/Button';
+
 interface HeaderProps {
   isAuthenticated: boolean;
   user: { username: string } | null;
   onLogin: () => void;
   onSignup: () => void;
   onLogout: () => void;
+  onSubmit: () => void;
+  onSubmitWithStdin: () => void;
+  onClearSubmissions: () => void;
 }
 
-export default function Header({ isAuthenticated, user, onLogin, onSignup, onLogout }: HeaderProps) {
+export default function Header({
+  isAuthenticated,
+  user,
+  onLogin,
+  onSignup,
+  onLogout,
+  onSubmit,
+  onSubmitWithStdin,
+  onClearSubmissions
+}: HeaderProps) {
   return (
     <header className="w-full bg-[#211e20] border-b border-[#555568] p-2">
       <div className="flex justify-between items-center">
         <div className="text-[#a0a08b]">PIP-OS v7.1.0.8</div>
-        <Dropdown as={ButtonGroup}>
-          <Dropdown.Toggle variant="success" id="dropdown-basic" >
-            Languages
-          </Dropdown.Toggle>
-          <Dropdown.Menu>
-            <Dropdown.Item onClick={() => console.log("piton")}>Python (w/ LSP)</Dropdown.Item>
-          </Dropdown.Menu>
-        </Dropdown>
-        <Button variant="secondary">Submit</Button>
+        <div className="flex items-center space-x-2">
+          <Button variant="primary" onClick={onSubmit}>Submit</Button>
+          <Button variant="secondary" onClick={onSubmitWithStdin}>Submit with Stdin</Button>
+          <Button variant="danger" onClick={onClearSubmissions}>Clear Submissions</Button>
+          {/* <Dropdown as={ButtonGroup}>
+            <Dropdown.Toggle variant="success" id="dropdown-basic">
+              Languages
+            </Dropdown.Toggle>
+            <Dropdown.Menu>
+              <Dropdown.Item onClick={() => console.log("piton")}>Python (w/ LSP)</Dropdown.Item>
+            </Dropdown.Menu>
+          </Dropdown> */}
+        </div>
         <div className="flex items-center">
           {isAuthenticated && user ? (
             <div className="flex items-center mr-4">

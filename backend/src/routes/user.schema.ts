@@ -41,13 +41,16 @@ const MeResponse = z.object({
 	updatedAt: z.string(),
 	id: z.number(),
 	banned: z.boolean(),
-	banReason: z.string()
-})
-
-export const { schemas: userSchemas, $ref } = buildJsonSchemas({
-	LoginRequest,
-	LoginResponse,
-	SignupRequest,
-	SignupResponse,
-	MeResponse
+	banReason: z.string(),
 });
+
+export const { schemas: userSchemas, $ref } = buildJsonSchemas(
+	{
+		LoginRequest,
+		LoginResponse,
+		SignupRequest,
+		SignupResponse,
+		MeResponse,
+	},
+	{ $id: "UserSchema" },
+);

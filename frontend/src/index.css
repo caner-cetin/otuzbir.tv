@@ -278,3 +278,40 @@ input[type="range"]::-moz-range-track {
   background: #a0a08b;
   border-radius: 1px;
 }
+
+.output-modal {
+  height: 100%;
+  overflow-y: auto;
+}
+
+.output-modal pre {
+  background-color: #1e1e1e;
+  color: #d4d4d4;
+  padding: 10px;
+  border-radius: 4px;
+  white-space: pre-wrap;
+  word-wrap: break-word;
+}
+
+.output-modal .nav-tabs {
+  border-bottom: 1px solid #555568;
+}
+
+.output-modal .nav-tabs .nav-link {
+  color: #a0a08b;
+  background-color: transparent;
+  border: none;
+}
+
+.output-modal .nav-tabs .nav-link.active {
+  color: #e9efec;
+  background-color: #2c2a2a;
+  border-bottom: 2px solid #e9efec;
+}
+
+.output-modal h4,
+.output-modal h5 {
+  color: #a0a08b;
+  margin-top: 10px;
+  margin-bottom: 5px;
+}

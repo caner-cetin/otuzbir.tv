@@ -13,7 +13,6 @@ import { JWT_SECRET } from "./config";
 import { InitDB } from "./db";
 import { errorHandler } from "./middlewares/Error";
 import { authPlugin } from "./middlewares/JWT";
-import { judgeRoutes } from "./routes/judge.controller";
 import {
 	LanguageName,
 	type LanguageServerRunConfig,
@@ -22,12 +21,14 @@ import {
 } from "./routes/lsp";
 import { userRoutes } from "./routes/user.route";
 import { userSchemas } from "./routes/user.schema";
+import { judgeSchemas } from "./routes/judge.schema";
+import { judgeRoutes } from "./routes/judge.route";
 
 const app = fastify({
 	logger: true,
 });
 
-for (const schema of [...userSchemas]) {
+for (const schema of [...userSchemas, ...judgeSchemas]) {
 	app.addSchema(schema);
 }
 await app.register(AllRoutes, {
