@@ -8,3 +8,10 @@ todo:
 - [ ] stdin seems like not working?
 - [ ] more lsp support, only python works for now. 
 - [ ] styling. buttons dropdowns are straight unconfigured bootstrap lmfao
+- [ ] share links, submissions are already registered with their corresponding ids. id column needs to be uuid tho
+
+below needs to be done after mailgun replies me on dns problem
+- [ ] email verification process
+- [ ] save submissions, share stats, etc etc
+
+more to come
