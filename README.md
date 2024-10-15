@@ -10,8 +10,10 @@ todo:
 - [ ] styling. buttons dropdowns are straight unconfigured bootstrap lmfao
 - [ ] share links, submissions are already registered with their corresponding ids. id column needs to be uuid tho
 
-below needs to be done after mailgun replies me on dns problem
-- [ ] email verification process
-- [ ] save submissions, share stats, etc etc
+~~below needs to be done after mailgun replies me on dns problem~~
+~~- [ ] email verification process~~
+~~- [ ] save submissions, share stats, etc etc~~
+
+we are using kinde for auth provider, I really dont want to setup github callbacks, email verifications, templates, etc. it is free for 10,000 monthly active users, and I bet my left and right balls this app wont have 10,000 monthly active users.
 
 more to come
