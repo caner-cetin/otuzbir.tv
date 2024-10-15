@@ -1,10 +1,4 @@
-import {
-	useQuery,
-	useMutation,
-	UseQueryResult,
-	UseMutationResult,
-} from "@tanstack/react-query";
-import axios from "axios";
+import { useMutation, useQuery } from "@tanstack/react-query";
 import api from "src/services/api";
 
 // Types based on your Zod schemas
@@ -61,13 +55,11 @@ const submitSubmission = (id: number) =>
 
 // Hook
 export function useJudge() {
-	const health = useQuery<HealthResponse, Error>({
-		queryKey: ["health"],
-		queryFn: getHealth,
+	const healthMutation = useMutation<HealthResponse, Error>({
+		mutationFn: getHealth,
 	});
-	const languages = useQuery<LanguagesResponse, Error>({
-		queryKey: ["languages"],
-		queryFn: getLanguages,
+	const languagesMutation = useMutation<LanguagesResponse, Error>({
+		mutationFn: getLanguages,
 	});
 
 	const submitCodeMutation = useMutation<SubmitCodeResponse, Error, string>({
@@ -87,8 +79,8 @@ export function useJudge() {
 	});
 
 	return {
-		health,
-		languages,
+		health: healthMutation,
+		languages: languagesMutation,
 		submitCode: submitCodeMutation,
 		submitStdin: submitStdinMutation,
 		submitSubmission: submitSubmissionMutation,

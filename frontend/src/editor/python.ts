@@ -56,7 +56,7 @@ export const VSConfig = (
 									// biome-ignore lint/complexity/noForEach: <explanation>
 									["pyright.restartserver", "pyright.organizeimports"].forEach(
 										(cmdName) => {
-											vscode.commands.registerCommand(
+											vscode.commands.registerDiffInformationCommand(
 												cmdName,
 												(...args: unknown[]) => {
 													languageClient?.sendRequest(
