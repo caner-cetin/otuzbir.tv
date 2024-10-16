@@ -84,7 +84,7 @@ export default function MonacoPage() {
 
   return (
     <div className="min-h-screen bg-[#211e20] text-[#e9efec] font-mono flex flex-col">
-      <CustomToast sprite={toast_error} />
+      <CustomToast />
       <Header
         user={user}
         onLogin={login}
