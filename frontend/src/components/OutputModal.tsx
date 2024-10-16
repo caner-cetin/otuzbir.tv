@@ -8,9 +8,15 @@ import {
   Clock,
   CheckCircle,
   MemoryStick,
+  Cpu,
+  Calendar,
+  Hash,
+  FileCode,
+  Terminal,
 } from "lucide-react";
 import { BellSimpleSlash, Bug, MaskSad, QuestionMark, Queue } from '@phosphor-icons/react'
 import type { GetSubmissionResponse } from "src/hooks/useJudge";
+import { BarChart, Bar, XAxis, YAxis, Tooltip, ResponsiveContainer } from 'recharts';
 
 interface Submission {
   localId: number;
@@ -73,6 +79,63 @@ const OutputModal: React.FC<OutputModalProps> = ({
     }
   };
 
+  const renderPerformanceCharts = () => {
+    if (!submissionResult) return null;
+
+    const memoryData = [
+      { name: 'Memory Usage', value: submissionResult.memory },
+      { name: 'Memory Limit', value: submissionResult.memory_limit },
+    ];
+
+    const timeData = [
+      { name: 'Exec Time', value: Number.parseFloat(submissionResult.time) },
+      { name: 'CPU Time Limit', value: Number.parseFloat(submissionResult.cpu_time_limit) },
+      { name: 'Wall Time', value: Number.parseFloat(submissionResult.wall_time) },
+    ];
+
+    return (
+      <div className="mb-4">
+        <h5 className="font-semibold mb-2">Performance Metrics</h5>
+        <div className="grid grid-cols-2 gap-4">
+          <div>
+            <h6 className="text-center">Memory Usage (KB)</h6>
+            <ResponsiveContainer width="100%" height={300}>
+              <BarChart data={memoryData}>
+                <XAxis
+                  dataKey="name"
+                  angle={-45}
+                  textAnchor="end"
+                  height={100}
+                  interval={0}
+                />
+                <YAxis />
+                <Tooltip />
+                <Bar dataKey="value" fill="#8884d8" />
+              </BarChart>
+            </ResponsiveContainer>
+          </div>
+          <div>
+            <h6 className="text-center">Time Usage (seconds)</h6>
+            <ResponsiveContainer width="100%" height={305}>
+              <BarChart data={timeData}>
+                <XAxis
+                  dataKey="name"
+                  angle={-45}
+                  textAnchor="end"
+                  height={105}
+                  interval={0}
+                />
+                <YAxis />
+                <Tooltip />
+                <Bar dataKey="value" fill="#82ca9d" />
+              </BarChart>
+            </ResponsiveContainer>
+          </div>
+        </div>
+      </div>
+    );
+  };
+
   const renderSubmissionResult = () => {
     if (isLoading) return <Spinner animation="border" />;
     if (isError)
@@ -83,31 +146,56 @@ const OutputModal: React.FC<OutputModalProps> = ({
 
     return (
       <div className="bg-[#2c2a2a] p-4 rounded-lg shadow-lg">
-        <div className="flex items-center justify-between mb-4">
-          <h4 className="text-xl font-bold flex items-center">
+        <div className="flex items-center justify-between mb-2">
+          <h4 className="text-lg font-bold flex items-center">
             {getStatusIcon(submissionResult.status.id)}
-            {/* well we are using a judge api, and as it is a literally judge, it returns "accepted" when the code is ran successfully */}
-            {/* it is a bit weird so */}
             <span className="ml-2">
               {submissionResult.status.id === 3
                 ? "Executed"
                 : submissionResult.status.description}
             </span>
           </h4>
-          <div className="flex items-center space-x-4">
-            <div className="flex items-center">
-              <Clock className="mr-2" />
-              <span>{submissionResult.time} s</span>
-            </div>
-            <div className="flex items-center">
-              <MemoryStick className="mr-2" />
-              <span>{submissionResult.memory} KB</span>
-            </div>
+        </div>
+
+        <div className="text-sm">
+          <span className="mr-2">{submissionResult.language.name}</span>
+          <span>exited with code {submissionResult.exit_code}</span>
+        </div>
+
+        <div className="grid grid-cols-3 gap-2 text-sm mb-4 mt-2">
+          <div className="flex items-center">
+            <Clock className="mr-1 w-4 h-4" />
+            <span>Exec: {submissionResult.time}s</span>
+          </div>
+          <div className="flex items-center">
+            <Cpu className="mr-1 w-4 h-4" />
+            <span>CPU: {submissionResult.cpu_time_limit}s</span>
+          </div>
+          <div className="flex items-center">
+            <Clock className="mr-1 w-4 h-4" />
+            <span>Wall: {submissionResult.wall_time}s</span>
+          </div>
+          <div className="flex items-center">
+            <MemoryStick className="mr-1 w-4 h-4" />
+            <span>Mem: {submissionResult.memory}KB</span>
+          </div>
+          <div className="flex items-center">
+            <Calendar className="mr-1 w-4 h-4" />
+            <span>Created: {new Date(submissionResult.created_at).toLocaleTimeString()}</span>
+          </div>
+          <div className="flex items-center">
+            <Calendar className="mr-1 w-4 h-4" />
+            <span>Finished: {new Date(submissionResult.finished_at).toLocaleTimeString()}</span>
           </div>
         </div>
+
+
         {submissionResult.stdout && (
           <div className="mb-4">
-            <h5 className="font-semibold mb-2">Output:</h5>
+            <h5 className="font-semibold mb-2 flex items-center">
+              <Terminal className="mr-2" />
+              Output:
+            </h5>
             <pre className="bg-[#3c3836] p-3 rounded overflow-x-auto">
               {submissionResult.stdout}
             </pre>
@@ -115,7 +203,10 @@ const OutputModal: React.FC<OutputModalProps> = ({
         )}
         {submissionResult.stderr && (
           <div className="mb-4">
-            <h5 className="font-semibold mb-2 text-red-500">Error:</h5>
+            <h5 className="font-semibold mb-2 text-red-500 flex items-center">
+              <Terminal className="mr-2" />
+              Error:
+            </h5>
             <pre className="bg-[#3c3836] p-3 rounded overflow-x-auto text-red-400">
               {submissionResult.stderr}
             </pre>
@@ -123,12 +214,28 @@ const OutputModal: React.FC<OutputModalProps> = ({
         )}
         {submissionResult.compile_output && (
           <div className="mb-4">
-            <h5 className="font-semibold mb-2">Compile Output:</h5>
+            <h5 className="font-semibold mb-2 flex items-center">
+              <Terminal className="mr-2" />
+              Compile Output:
+            </h5>
             <pre className="bg-[#3c3836] p-3 rounded overflow-x-auto">
               {submissionResult.compile_output}
             </pre>
           </div>
         )}
+        {submissionResult.message && (
+          <div className="mb-4">
+            <h5 className="font-semibold mb-2 flex items-center">
+              <Terminal className="mr-2" />
+              Message:
+            </h5>
+            <pre className="bg-[#3c3836] p-3 rounded overflow-x-auto">
+              {submissionResult.message}
+            </pre>
+          </div>
+        )}
+        {renderPerformanceCharts()}
+
       </div>
     );
   };

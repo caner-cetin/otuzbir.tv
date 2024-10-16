@@ -23,29 +23,48 @@ const LanguagesResponse = z.array(
 const SubmitCodeResponse = z.object({ id: z.number() });
 
 const GetSubmissionResponse = z.object({
+	source_code: z.string(),
+	language_id: z.number(),
+	stdin: z.string(),
 	stdout: z.string().nullable().optional(),
+	status_id: z.number(),
+	created_at: z.string(),
+	finished_at: z.string(),
 	time: z.string(),
 	memory: z.number(),
 	stderr: z.string().nullable().optional(),
 	token: z.string(),
+	number_of_runs: z.number(),
+	cpu_time_limit: z.string(),
+	cpu_extra_time: z.string(),
+	wall_time_limit: z.string(),
+	memory_limit: z.number(),
+	stack_limit: z.number(),
+	max_file_size: z.number(),
 	compile_output: z.string().nullable().optional(),
 	message: z.string().nullable().optional(),
+	exit_code: z.number(),
+	wall_time: z.string(),
 	status: z.object({
 		id: z.number(),
 		description: z.string(),
 	}),
+	language: z.object({
+		id: z.number(),
+		name: z.string(),
+	}),
 });
 
 const CreateSubmissionResponse = z.object({
-	token: z.string()
-})
+	token: z.string(),
+});
 export const { schemas: judgeSchemas, $ref } = buildJsonSchemas(
 	{
 		HealthResponse,
 		LanguagesResponse,
 		SubmitCodeResponse,
 		GetSubmissionResponse,
-		CreateSubmissionResponse
+		CreateSubmissionResponse,
 	},
 	{ $id: "$JudgeSchema" },
 );

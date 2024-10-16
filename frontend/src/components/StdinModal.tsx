@@ -9,7 +9,8 @@ import Submissions from "src/hooks/useSubmissions";
 interface StdinModalProps {
 	show: boolean
 	onHide: () => void
-	onSubmit: (stdin: string, JudgeAPI: JudgeAPISpec, setSubmissions: React.Dispatch<React.SetStateAction<Submissions.StoredSubmission[]>>) => Promise<void>
+	languageId: number
+	onSubmit: (stdin: string, JudgeAPI: JudgeAPISpec, languageId: number, setSubmissions: React.Dispatch<React.SetStateAction<Submissions.StoredSubmission[]>>) => Promise<void>
 	setSubmissions: React.Dispatch<React.SetStateAction<Submissions.StoredSubmission[]>>
 	judgeApi: JudgeAPISpec
 }
@@ -17,13 +18,14 @@ interface StdinModalProps {
 const StdinModal: React.FC<StdinModalProps> = ({
 	show,
 	onHide,
+	languageId,
 	onSubmit,
 	setSubmissions,
 	judgeApi,
 }) => {
 	const [stdin, setStdin] = useState("");
 	const handleSubmit = () => {
-		onSubmit(stdin, judgeApi, setSubmissions);
+		onSubmit(stdin, judgeApi, languageId, setSubmissions);
 		onHide();
 		return;
 	};

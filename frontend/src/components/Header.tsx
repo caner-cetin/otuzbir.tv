@@ -4,9 +4,12 @@ import Dropdown from 'react-bootstrap/Dropdown';
 import ButtonGroup from 'react-bootstrap/ButtonGroup';
 import Button from 'react-bootstrap/Button';
 import type { AuthOptions, KindeUser } from '@kinde-oss/kinde-auth-pkce-js';
+import type { LanguagesResponse } from 'src/hooks/useJudge';
 
 interface HeaderProps {
   user: KindeUser | undefined;
+  languages: LanguagesResponse;
+  setLanguageID: React.Dispatch<React.SetStateAction<number>>;
   onLogin: (options: AuthOptions) => Promise<void>;
   onSignup: (options: AuthOptions) => Promise<void>;
   onLogout: () => void;
@@ -16,7 +19,9 @@ interface HeaderProps {
 }
 
 export default function Header({
-  user,
+  user, 
+  languages,
+  setLanguageID,
   onLogin,
   onSignup,
   onLogout,
@@ -76,10 +81,16 @@ export default function Header({
             >
               Languages
             </Dropdown.Toggle>
-            <Dropdown.Menu className="bg-[#3c3836] border-[#555568]">
-              <Dropdown.Item className="text-[#e9efec] hover:bg-[#504945]" onClick={() => console.log("piton")}>
-                Python (w/ LSP)
-              </Dropdown.Item>
+            <Dropdown.Menu className="border-[#555568] scrollable-dropdown">
+              {languages.map((lang) => (
+                <Dropdown.Item
+                  key={lang.id}
+                  className="text-[#e9efec] hover:bg-[#504945]"
+                  onClick={() => setLanguageID(lang.id)}
+                >
+                  {lang.name}
+                </Dropdown.Item>
+              ))}
             </Dropdown.Menu>
           </Dropdown>
         </div>
@@ -105,6 +116,6 @@ export default function Header({
           <div className="text-[#a0a08b]">{new Date().toLocaleTimeString()}</div>
         </div>
       </div>
-    </header>
+    </header >
   );
 }

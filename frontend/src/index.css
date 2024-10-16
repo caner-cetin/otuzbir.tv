@@ -331,3 +331,20 @@ input[type="range"]::-moz-range-track {
 .react-resizable-panels__panel-handle {
   transition: background-color 0.2s;
 }
+
+.scrollable-dropdown {
+  height: auto;
+  max-height: 280px;
+  overflow-x: hidden;
+}
+
+
+.scrollable-dropdown::-webkit-scrollbar {
+  -webkit-appearance: none;
+  width: 4px;        
+}    
+.scrollable-dropdown::-webkit-scrollbar-thumb {
+  border-radius: 3px;
+  background-color: lightgray;
+  -webkit-box-shadow: 0 0 1px rgba(255,255,255,.75);        
+}

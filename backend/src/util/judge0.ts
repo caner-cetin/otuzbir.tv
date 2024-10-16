@@ -34,17 +34,46 @@ interface CreateSubmissionResponse {
 }
 
 interface GetSubmissionResponse {
+	source_code: string;
+	language_id: number;
+	stdin: string;
 	stdout: string | null | undefined;
+	status_id: number;
+	created_at: string;
+	finished_at: string;
 	time: string;
 	memory: number;
 	stderr: string | null | undefined;
 	token: string;
+	number_of_runs: number;
+	cpu_time_limit: string;
+	cpu_extra_time: string;
+	wall_time_limit: string;
+	memory_limit: number;
+	stack_limit: number;
+	max_file_size: number;
 	compile_output: string | null | undefined;
 	message: string | null | undefined;
+	exit_code: number;
+	wall_time: string;
 	status: {
 		id: number;
 		description: string;
 	};
+	language: {
+		id: number;
+		name: string;
+	};
+}
+
+export interface Status {
+	id: number;
+	description: string;
+}
+
+export interface Language {
+	id: number;
+	name: string;
 }
 
 export interface Judge {
@@ -137,7 +166,7 @@ export const Judge0: Judge = {
 		},
 		async get(token) {
 			const req = await Bun.fetch(
-				`${JUDGE0_BASE_API_URL}/submissions/${token}?base64_encoded=true`,
+				`${JUDGE0_BASE_API_URL}/submissions/${token}?base64_encoded=true&fields=*`,
 				{
 					headers: {
 						[JUDGE0_AUTHN_HEADER]: JUDGE0_AUTHN_TOKEN,

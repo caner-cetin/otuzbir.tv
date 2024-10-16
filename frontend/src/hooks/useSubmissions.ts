@@ -38,10 +38,11 @@ export namespace Submissions {
 
 	export async function handleSubmitCode(
 		editor: MonacoEditorLanguageClientWrapper | null,
+		languageId: number,
 		withStdin: boolean,
 		setShowStdinModal: (show: boolean) => void,
 		JudgeAPI: JudgeAPISpec,
-		setSubmissions: React.Dispatch<React.SetStateAction<StoredSubmission[]>>
+		setSubmissions: React.Dispatch<React.SetStateAction<StoredSubmission[]>>,
 	): Promise<void> {
 		if (editor === null) {
 			toast.error("editor is uninitalized");
@@ -57,7 +58,12 @@ export namespace Submissions {
 			if (withStdin) {
 				setShowStdinModal(true);
 			} else {
-				await finalizeSubmission(result.id, JudgeAPI, setSubmissions);
+				await finalizeSubmission(
+					result.id,
+					languageId,
+					JudgeAPI,
+					setSubmissions,
+				);
 			}
 		} catch (error) {
 			toast.error("Failed to submit code");
@@ -67,7 +73,8 @@ export namespace Submissions {
 	export async function handleSubmitStdin(
 		stdin: string,
 		JudgeAPI: JudgeAPISpec,
-		setSubmissions: React.Dispatch<React.SetStateAction<StoredSubmission[]>>
+		languageId: number,
+		setSubmissions: React.Dispatch<React.SetStateAction<StoredSubmission[]>>,
 	): Promise<void> {
 		if (!JudgeAPI.submitCode.data?.id) {
 			toast.error("No submission ID available");
@@ -80,7 +87,12 @@ export namespace Submissions {
 					stdin,
 				});
 			}
-			await finalizeSubmission(JudgeAPI.submitCode.data.id, JudgeAPI, setSubmissions);
+			await finalizeSubmission(
+				JudgeAPI.submitCode.data.id,
+				languageId,
+				JudgeAPI,
+				setSubmissions,
+			);
 		} catch (error) {
 			toast.error("Failed to process submission");
 		}
@@ -88,19 +100,25 @@ export namespace Submissions {
 
 	async function finalizeSubmission(
 		globalId: number,
+		languageId: number,
 		JudgeAPI: JudgeAPISpec,
-		setSubmissions: React.Dispatch<React.SetStateAction<StoredSubmission[]>>
+		setSubmissions: React.Dispatch<React.SetStateAction<StoredSubmission[]>>,
 	): Promise<void> {
-		const result = await JudgeAPI.submitSubmission.mutateAsync(globalId);
+		const result = await JudgeAPI.submitSubmission.mutateAsync({
+			id: globalId,
+			languageId: languageId,
+		});
 		const localId = getNextSubmissionId();
 		const newSubmission = { localId, globalId, token: result.token };
 		saveSubmission(newSubmission);
-		setSubmissions(prev => [newSubmission, ...prev].sort((a, b) => b.localId - a.localId));
+		setSubmissions((prev) =>
+			[newSubmission, ...prev].sort((a, b) => b.localId - a.localId),
+		);
 		toast.success("Submission successful");
 	}
 
 	export function handleClearSubmissions(
-		setSubmissions: React.Dispatch<React.SetStateAction<StoredSubmission[]>>
+		setSubmissions: React.Dispatch<React.SetStateAction<StoredSubmission[]>>,
 	): void {
 		clearStoredSubmissions();
 		setSubmissions([]);

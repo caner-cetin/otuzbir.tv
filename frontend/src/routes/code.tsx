@@ -26,6 +26,7 @@ export default function MonacoPage() {
   const [submissions, setSubmissions] = useState<StoredSubmission[]>([]);
   const [isMobile, setIsMobile] = useState(false);
   const [editorState, setEditorState] = useState<MonacoEditorLanguageClientWrapper | null>(null);
+  const [languageID, setLanguageID] = useState<number>(71);
   const { login, register, logout } = useKindeAuth();
   const auth = useKindeAuth();
   const user = auth.user;
@@ -87,11 +88,13 @@ export default function MonacoPage() {
       <CustomToast />
       <Header
         user={user}
+        languages={JudgeAPI.languages.data ?? []}
+        setLanguageID={setLanguageID}
         onLogin={login}
         onSignup={register}
         onLogout={logout}
-        onSubmit={() => Submissions.handleSubmitCode(editorState, false, setShowStdinModal, JudgeAPI, setSubmissions)}
-        onSubmitWithStdin={() => Submissions.handleSubmitCode(editorState, true, setShowStdinModal, JudgeAPI, setSubmissions)}
+        onSubmit={() => Submissions.handleSubmitCode(editorState, languageID, false, setShowStdinModal, JudgeAPI, setSubmissions)}
+        onSubmitWithStdin={() => Submissions.handleSubmitCode(editorState, languageID, true, setShowStdinModal, JudgeAPI, setSubmissions)}
         onClearSubmissions={() => Submissions.handleClearSubmissions(setSubmissions)}
       />
       <PanelGroup direction="horizontal" className="flex-1">
@@ -113,6 +116,7 @@ export default function MonacoPage() {
       </PanelGroup>
       <StdinModal
         show={showStdinModal}
+        languageId={languageID}
         onHide={() => setShowStdinModal(false)}
         onSubmit={Submissions.handleSubmitStdin}
         setSubmissions={setSubmissions}

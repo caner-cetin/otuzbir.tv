@@ -1,4 +1,9 @@
-import { useMutation, type UseMutationResult } from "@tanstack/react-query";
+import {
+	useMutation,
+	useQuery,
+	type UseQueryResult,
+	type UseMutationResult,
+} from "@tanstack/react-query";
 import api from "src/services/api";
 
 // Types based on your Zod schemas
@@ -12,7 +17,7 @@ type HealthResponse = Array<{
 	failed: number;
 }>;
 
-type LanguagesResponse = Array<{
+export type LanguagesResponse = Array<{
 	id: number;
 	name: string;
 }>;
@@ -22,18 +27,38 @@ type SubmitCodeResponse = {
 };
 
 export type GetSubmissionResponse = {
-	stdout: string | null;
+	source_code: string;
+	language_id: number;
+	stdin: string;
+	stdout: string | null | undefined;
+	status_id: number;
+	created_at: string;
+	finished_at: string;
 	time: string;
 	memory: number;
-	stderr: string | null;
+	stderr: string | null | undefined;
 	token: string;
-	compile_output: string | null;
-	message: string | null;
+	number_of_runs: number;
+	cpu_time_limit: string;
+	cpu_extra_time: string;
+	wall_time_limit: string;
+	memory_limit: number;
+	stack_limit: number;
+	max_file_size: number;
+	compile_output: string | null | undefined;
+	message: string | null | undefined;
+	exit_code: number;
+	wall_time: string;
 	status: {
 		id: number;
 		description: string;
 	};
-};
+	language: {
+		id: number;
+		name: string;
+	};
+}
+
 const getHealth = () =>
 	api.get<HealthResponse>("/judge/health").then((res) => res.data);
 const getLanguages = () =>
@@ -55,14 +80,18 @@ const submitStdin = (opts: submitStdinOpts) =>
 			headers: { "Content-Type": "text/plain" },
 		})
 		.then((res) => res.data);
-const submitSubmission = (id: number) =>
+
+type SubmitSubmissionOpts = {
+	id: number, languageId: number
+}
+const submitSubmission = (opts: SubmitSubmissionOpts) =>
 	api
-		.put<GetSubmissionResponse>(`/judge/submit/${id}?language=71`)
+		.put<GetSubmissionResponse>(`/judge/submit/${opts.id}?language=${opts.languageId}`)
 		.then((res) => res.data);
 
 export interface JudgeAPISpec {
 	health: UseMutationResult<HealthResponse, Error, void, unknown>;
-	languages: UseMutationResult<LanguagesResponse, Error, void, unknown>;
+	languages: UseQueryResult<LanguagesResponse, Error>;
 	submitCode: UseMutationResult<SubmitCodeResponse, Error, string, unknown>;
 	submitStdin: UseMutationResult<
 		null,
@@ -76,7 +105,7 @@ export interface JudgeAPISpec {
 	submitSubmission: UseMutationResult<
 		GetSubmissionResponse,
 		Error,
-		number,
+		SubmitSubmissionOpts,
 		unknown
 	>;
 }
@@ -86,8 +115,10 @@ export function useJudge(): JudgeAPISpec {
 	const healthMutation = useMutation<HealthResponse, Error>({
 		mutationFn: getHealth,
 	});
-	const languagesMutation = useMutation<LanguagesResponse, Error>({
-		mutationFn: getLanguages,
+	const languages = useQuery<LanguagesResponse, Error>({
+		queryKey: ["languages"],
+		queryFn: getLanguages,
+		staleTime: Number.POSITIVE_INFINITY,
 	});
 
 	const submitCodeMutation = useMutation<SubmitCodeResponse, Error, string>({
@@ -99,14 +130,14 @@ export function useJudge(): JudgeAPISpec {
 	const submitSubmissionMutation = useMutation<
 		GetSubmissionResponse,
 		Error,
-		number
+		SubmitSubmissionOpts
 	>({
 		mutationFn: submitSubmission,
 	});
 
 	return {
 		health: healthMutation,
-		languages: languagesMutation,
+		languages: languages,
 		submitCode: submitCodeMutation,
 		submitStdin: submitStdinMutation,
 		submitSubmission: submitSubmissionMutation,
