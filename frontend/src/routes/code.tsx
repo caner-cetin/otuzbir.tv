@@ -15,7 +15,8 @@ import {
 } from "src/utils/submissionCounter";
 import { useKindeAuth } from "@kinde-oss/kinde-auth-react";
 import Submissions from "src/hooks/useSubmissions";
-
+import CustomToast from "src/components/CustomToast";
+import toast_error from "src/assets/toast_error.png";
 export const Route = createFileRoute("/code")({
   component: MonacoPage,
 });
@@ -83,7 +84,7 @@ export default function MonacoPage() {
 
   return (
     <div className="min-h-screen bg-[#211e20] text-[#e9efec] font-mono flex flex-col">
-      <Toaster />
+      <CustomToast sprite={toast_error} />
       <Header
         user={user}
         onLogin={login}
