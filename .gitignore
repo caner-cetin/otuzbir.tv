@@ -8,3 +8,4 @@ build
 fly.toml
 judge0.conf
 .idea
+dist

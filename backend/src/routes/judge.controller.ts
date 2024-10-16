@@ -57,10 +57,12 @@ export const SubmitStdin = async (
 	if (!stdin && !id) {
 		throw new HttpException(400, "both stdin and id cannot be null");
 	}
-	await DB.updateTable("submissions").set({
-		stdin: Buffer.from(stdin).toString("base64"),
-		updatedAt: dayjs(),
-	});
+	await DB.updateTable("submissions")
+		.set({
+			stdin: Buffer.from(stdin).toString("base64"),
+			updatedAt: dayjs(),
+		})
+		.execute();
 	return;
 };
 

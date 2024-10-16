@@ -315,3 +315,19 @@ input[type="range"]::-moz-range-track {
   margin-top: 10px;
   margin-bottom: 5px;
 }
+
+.nav-tabs {
+  flex-wrap: nowrap;
+}
+
+.nav-item {
+  white-space: nowrap;
+}
+
+.react-resizable-panels__panel {
+  overflow: hidden;
+}
+
+.react-resizable-panels__panel-handle {
+  transition: background-color 0.2s;
+}

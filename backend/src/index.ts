@@ -19,8 +19,6 @@ import {
 	getLocalDirectory,
 	registerLanguageServer,
 } from "./routes/lsp";
-import { userRoutes } from "./routes/user.route";
-import { userSchemas } from "./routes/user.schema";
 import { judgeSchemas } from "./routes/judge.schema";
 import { judgeRoutes } from "./routes/judge.route";
 
@@ -28,14 +26,14 @@ const app = fastify({
 	logger: true,
 });
 
-for (const schema of [...userSchemas, ...judgeSchemas]) {
+for (const schema of [...judgeSchemas]) {
 	app.addSchema(schema);
 }
 await app.register(AllRoutes, {
 	useColors: true,
 });
 await app.register(cors, {
-	origin: ["https://otuzbir.tv", "http://localhost:5173"],
+	origin: process.env.NODE_ENV === "development" ? true : [/\otuzbir\.tv$/],
 	methods: ["GET", "POST", "PUT", "DELETE", "OPTIONS", "HEAD"],
 	credentials: true,
 });
@@ -60,7 +58,6 @@ await app.register(import("fastify-raw-body"), {
 	runFirst: false,
 	jsonContentTypes: ["application/json", "text/plain"],
 });
-await app.register(userRoutes, { prefix: "/user" });
 await app.register(judgeRoutes, { prefix: "/judge" });
 await app.register(errorHandler);
 await app.register(authPlugin);

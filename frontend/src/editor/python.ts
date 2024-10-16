@@ -84,7 +84,7 @@ export const VSConfig = (
 				},
 			},
 		},
-		logLevel: LogLevel.Debug,
+		logLevel: LogLevel.Info,
 		vscodeApiConfig: {
 			userServices: {
 				...getKeybindingsServiceOverride(),

@@ -1,5 +1,6 @@
-import React, { useState, useEffect, useRef } from "react";
-import { Toaster, toast } from "react-hot-toast";
+import React, { useState, useEffect } from "react";
+import { Toaster } from "react-hot-toast";
+import { Panel, PanelGroup, PanelResizeHandle } from "react-resizable-panels";
 import Header from "../components/Header";
 import StdinModal from "../components/StdinModal";
 import OutputModal from "../components/OutputModal";
@@ -9,13 +10,12 @@ import { MonacoEditorLanguageClientWrapper } from "monaco-editor-wrapper";
 import { VSConfig } from "../editor/python";
 import { useJudge, getSubmission } from "src/hooks/useJudge";
 import {
-  clearStoredSubmissions,
-  getNextSubmissionId,
   getStoredSubmissions,
-  saveSubmission,
   type StoredSubmission,
 } from "src/utils/submissionCounter";
 import { useKindeAuth } from "@kinde-oss/kinde-auth-react";
+import Submissions from "src/hooks/useSubmissions";
+
 export const Route = createFileRoute("/code")({
   component: MonacoPage,
 });
@@ -24,12 +24,11 @@ export default function MonacoPage() {
   const [showStdinModal, setShowStdinModal] = useState(false);
   const [submissions, setSubmissions] = useState<StoredSubmission[]>([]);
   const [isMobile, setIsMobile] = useState(false);
-  const editorRef = useRef<MonacoEditorLanguageClientWrapper | null>(null);
+  const [editorState, setEditorState] = useState<MonacoEditorLanguageClientWrapper | null>(null);
   const { login, register, logout } = useKindeAuth();
   const auth = useKindeAuth();
   const user = auth.user;
   const JudgeAPI = useJudge();
-
 
   useEffect(() => {
     const checkMobile = () => {
@@ -45,65 +44,13 @@ export default function MonacoPage() {
   useEffect(() => {
     if (!isMobile) {
       const storedSubmissions = getStoredSubmissions();
-      setSubmissions(storedSubmissions);
+      setSubmissions(storedSubmissions.sort((a, b) => b.localId - a.localId));
     }
   }, [isMobile]);
-  const handleSubmitCode = async (withStdin: boolean) => {
-    const code = editorRef.current?.getTextContents()?.text;
-    if (code === undefined || code === null) {
-      toast.error("No code to submit");
-      return;
-    }
-    try {
-      const result = await JudgeAPI.submitCode.mutateAsync(code);
-      if (withStdin) {
-        setShowStdinModal(true);
-      } else {
-        await finalizeSubmission(result.id);
-      }
-    } catch (error) {
-      toast.error("Failed to submit code");
-    }
-  };
-
-  const handleSubmitStdin = async (stdin: string) => {
-    if (!JudgeAPI.submitCode.data?.id) {
-      toast.error("No submission ID available");
-      return;
-    }
-
-    try {
-      if (stdin.trim() !== "") {
-        await JudgeAPI.submitStdin.mutateAsync({
-          id: JudgeAPI.submitCode.data.id,
-          stdin,
-        });
-      }
-      await finalizeSubmission(JudgeAPI.submitCode.data.id);
-    } catch (error) {
-      toast.error("Failed to process submission");
-    }
-  };
-
-  const finalizeSubmission = async (globalId: number) => {
-    const result = await JudgeAPI.submitSubmission.mutateAsync(globalId);
-    const localId = getNextSubmissionId();
-    const newSubmission = { localId, globalId, token: result.token };
-    setSubmissions((prev) => [...prev, newSubmission]);
-    saveSubmission(newSubmission);
-    toast.success("Submission successful");
-  };
-
-  const handleClearSubmissions = () => {
-    clearStoredSubmissions();
-    setSubmissions([]);
-    toast.success("Submissions cleared");
-  };
 
   useEffect(() => {
     if (!isMobile) {
       const initEditor = async () => {
-        if (editorRef.current) return;
         const wrapper = new MonacoEditorLanguageClientWrapper();
         const wrapperConfig = VSConfig(
           "/workspace",
@@ -118,7 +65,7 @@ export default function MonacoPage() {
         );
         await wrapper.init(wrapperConfig);
         await wrapper.start();
-        editorRef.current = wrapper;
+        setEditorState(wrapper);
       };
       initEditor();
     }
@@ -142,27 +89,33 @@ export default function MonacoPage() {
         onLogin={login}
         onSignup={register}
         onLogout={logout}
-        onSubmit={() => handleSubmitCode(false)}
-        onSubmitWithStdin={() => handleSubmitCode(true)}
-        onClearSubmissions={handleClearSubmissions}
+        onSubmit={() => Submissions.handleSubmitCode(editorState, false, setShowStdinModal, JudgeAPI, setSubmissions)}
+        onSubmitWithStdin={() => Submissions.handleSubmitCode(editorState, true, setShowStdinModal, JudgeAPI, setSubmissions)}
+        onClearSubmissions={() => Submissions.handleClearSubmissions(setSubmissions)}
       />
-      <div className="flex flex-1">
-        <div
-          id="monaco-editor-root"
-          className="flex-1"
-          style={{ height: "calc(100vh - 60px)" }}
-        />
-        <div className="w-1/3 bg-[#2c2a2a] p-4 overflow-auto">
-          <OutputModal
-            submissions={submissions}
-            getSubmission={getSubmission}
+      <PanelGroup direction="horizontal" className="flex-1">
+        <Panel defaultSize={70} minSize={30}>
+          <div
+            id="monaco-editor-root"
+            className="h-full"
           />
-        </div>
-      </div>
+        </Panel>
+        <PanelResizeHandle className="w-2 bg-[#3c3836] hover:bg-[#504945] cursor-col-resize" />
+        <Panel defaultSize={30} minSize={20}>
+          <div className="h-full bg-[#2c2a2a] p-4 overflow-y-auto">
+            <OutputModal
+              submissions={submissions}
+              getSubmission={getSubmission}
+            />
+          </div>
+        </Panel>
+      </PanelGroup>
       <StdinModal
         show={showStdinModal}
         onHide={() => setShowStdinModal(false)}
-        onSubmit={handleSubmitStdin}
+        onSubmit={Submissions.handleSubmitStdin}
+        setSubmissions={setSubmissions}
+        judgeApi={JudgeAPI}
       />
     </div>
   );

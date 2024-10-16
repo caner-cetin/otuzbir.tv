@@ -43,15 +43,43 @@ export default function Header({
       <div className="flex justify-between items-center">
         <div className="text-[#a0a08b]">PIP-OS v7.1.0.8</div>
         <div className="flex items-center space-x-2">
-          <Button variant="primary" onClick={onSubmit}>Submit</Button>
-          <Button variant="secondary" onClick={onSubmitWithStdin}>Submit with Stdin</Button>
-          <Button variant="danger" onClick={onClearSubmissions}>Clear Submissions</Button>
+          <Button
+            variant="link"
+            style={{ color: "#e9efec" }}
+            className="hover:bg-[#504945] transition-colors duration-200 text-decoration-none"
+            onClick={onSubmit}
+          >
+            Execute
+          </Button>
+          <Button
+            variant="link"
+            style={{ color: "#e9efec" }}
+            className="text-[#e9efec] hover:bg-[#504945] transition-colors duration-200 text-decoration-none"
+            onClick={onSubmitWithStdin}
+          >
+            Execute with Stdin
+          </Button>
+          <Button
+            variant="link"
+            style={{ color: "#e9efec" }}
+            className="hover:bg-[#cc241d] transition-colors duration-200 text-decoration-none"
+            onClick={onClearSubmissions}
+          >
+            Clear Local Submissions
+          </Button>
           <Dropdown as={ButtonGroup}>
-            <Dropdown.Toggle variant="success" id="dropdown-basic">
+            <Dropdown.Toggle
+              variant="link"
+              style={{ color: "#e9efec" }}
+              id="dropdown-basic"
+              className="text-[#e9efec] hover:bg-[#504945] transition-colors duration-200 text-decoration-none"
+            >
               Languages
             </Dropdown.Toggle>
-            <Dropdown.Menu>
-              <Dropdown.Item onClick={() => console.log("piton")}>Python (w/ LSP)</Dropdown.Item>
+            <Dropdown.Menu className="bg-[#3c3836] border-[#555568]">
+              <Dropdown.Item className="text-[#e9efec] hover:bg-[#504945]" onClick={() => console.log("piton")}>
+                Python (w/ LSP)
+              </Dropdown.Item>
             </Dropdown.Menu>
           </Dropdown>
         </div>
@@ -60,17 +88,17 @@ export default function Header({
             <div className="flex items-center mr-4">
               <User className="w-5 h-5 text-[#a0a08b] mr-2" />
               <span className="text-[#a0a08b]">{user.given_name ?? "friend"}</span>
-              <button type='button' onClick={logout} className="ml-4 text-[#a0a08b] hover:text-[#e9efec]">
+              <button type='button' onClick={logout} className="ml-4 text-[#a0a08b] hover:text-[#e9efec] hover:bg-[#504945] p-1 rounded transition-colors duration-200">
                 <LogOut className='w-5 h-5' />
               </button>
             </div>
           ) : (
             <div className="flex items-center mr-4">
-              <button type='button' onClick={login} className="mr-2">
-                <LogIn className="w-5 h-5 text-[#a0a08b] hover:text-[#e9efec]" />
+              <button type='button' onClick={login} className="mr-2 text-[#a0a08b] hover:text-[#e9efec] hover:bg-[#504945] p-1 rounded transition-colors duration-200">
+                <LogIn className="w-5 h-5" />
               </button>
-              <button type='button' onClick={signup}>
-                <UserPlus className="w-5 h-5 text-[#a0a08b] hover:text-[#e9efec]" />
+              <button type='button' onClick={signup} className="text-[#a0a08b] hover:text-[#e9efec] hover:bg-[#504945] p-1 rounded transition-colors duration-200">
+                <UserPlus className="w-5 h-5" />
               </button>
             </div>
           )}

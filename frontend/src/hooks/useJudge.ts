@@ -1,4 +1,4 @@
-import { useMutation, useQuery } from "@tanstack/react-query";
+import { useMutation, type UseMutationResult } from "@tanstack/react-query";
 import api from "src/services/api";
 
 // Types based on your Zod schemas
@@ -21,7 +21,7 @@ type SubmitCodeResponse = {
 	id: number;
 };
 
-type GetSubmissionResponse = {
+export type GetSubmissionResponse = {
 	stdout: string | null;
 	time: string;
 	memory: number;
@@ -44,17 +44,45 @@ const submitCode = (code: string) =>
 			headers: { "Content-Type": "text/plain" },
 		})
 		.then((res) => res.data);
-const submitStdin = (id: number, stdin: string) =>
-	api.post(`/judge/submit/stdin?id=${id}`, stdin, {
-		headers: { "Content-Type": "text/plain" },
-	});
+
+interface submitStdinOpts {
+	id: number;
+	stdin: string;
+}
+const submitStdin = (opts: submitStdinOpts) =>
+	api
+		.post(`/judge/submit/stdin?id=${opts.id}`, opts.stdin, {
+			headers: { "Content-Type": "text/plain" },
+		})
+		.then((res) => res.data);
 const submitSubmission = (id: number) =>
 	api
 		.put<GetSubmissionResponse>(`/judge/submit/${id}?language=71`)
 		.then((res) => res.data);
 
+export interface JudgeAPISpec {
+	health: UseMutationResult<HealthResponse, Error, void, unknown>;
+	languages: UseMutationResult<LanguagesResponse, Error, void, unknown>;
+	submitCode: UseMutationResult<SubmitCodeResponse, Error, string, unknown>;
+	submitStdin: UseMutationResult<
+		null,
+		Error,
+		{
+			id: number;
+			stdin: string;
+		},
+		unknown
+	>;
+	submitSubmission: UseMutationResult<
+		GetSubmissionResponse,
+		Error,
+		number,
+		unknown
+	>;
+}
+
 // Hook
-export function useJudge() {
+export function useJudge(): JudgeAPISpec {
 	const healthMutation = useMutation<HealthResponse, Error>({
 		mutationFn: getHealth,
 	});
@@ -65,11 +93,9 @@ export function useJudge() {
 	const submitCodeMutation = useMutation<SubmitCodeResponse, Error, string>({
 		mutationFn: submitCode,
 	});
-	const submitStdinMutation = useMutation<
-		void,
-		Error,
-		{ id: number; stdin: string }
-	>(({ id, stdin }) => submitStdin(id, stdin));
+	const submitStdinMutation = useMutation<null, Error, submitStdinOpts>({
+		mutationFn: submitStdin,
+	});
 	const submitSubmissionMutation = useMutation<
 		GetSubmissionResponse,
 		Error,

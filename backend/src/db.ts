@@ -1,5 +1,3 @@
-import { Passport } from "passport";
-import type { UserTable } from "./models/User";
 import * as path from "node:path";
 import { Pool } from "pg";
 import { promises as fs } from "node:fs";
@@ -9,7 +7,6 @@ import {
 	PostgresDialect,
 	FileMigrationProvider,
 } from "kysely";
-import type { SessionTable } from "./models/Session";
 import type { SubmissionsTable } from "./models/Submissions";
 if (process.env.DATABASE_URL === null) {
 	console.error("DATABASE_URL not found in environment variables");
@@ -17,8 +14,6 @@ if (process.env.DATABASE_URL === null) {
 }
 
 export interface Database {
-	users: UserTable;
-	sessions: SessionTable;
 	submissions: SubmissionsTable;
 }
 export const DB = new Kysely<Database>({
