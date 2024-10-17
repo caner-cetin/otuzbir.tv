@@ -9,3 +9,5 @@ fly.toml
 judge0.conf
 .idea
 dist
+frontend/dependency-graph.svg
+frontend/.dependency-cruiser.cjs
