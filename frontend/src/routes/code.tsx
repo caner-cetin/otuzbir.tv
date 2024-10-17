@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from "react";
-import { Toaster } from "react-hot-toast";
+import toast, { Toaster } from "react-hot-toast";
 import { Panel, PanelGroup, PanelResizeHandle } from "react-resizable-panels";
 import Header from "../components/Header";
 import StdinModal from "../components/StdinModal";
@@ -7,7 +7,7 @@ import OutputModal from "../components/OutputModal";
 import "@codingame/monaco-vscode-python-default-extension";
 import { createFileRoute } from "@tanstack/react-router";
 import { MonacoEditorLanguageClientWrapper } from "monaco-editor-wrapper";
-import { VSConfig } from "../editor/python";
+import { VSConfig } from "../editor/config";
 import { useJudge, getSubmission } from "src/hooks/useJudge";
 import {
   getStoredSubmissions,
@@ -16,7 +16,7 @@ import {
 import { useKindeAuth } from "@kinde-oss/kinde-auth-react";
 import Submissions from "src/hooks/useSubmissions";
 import CustomToast from "src/components/CustomToast";
-import toast_error from "src/assets/toast_error.png";
+import { LANGUAGE_CONFIG, useLanguageExtensionLoader } from "src/editor/loadLanguageExtension";
 export const Route = createFileRoute("/code")({
   component: MonacoPage,
 });
@@ -27,10 +27,12 @@ export default function MonacoPage() {
   const [isMobile, setIsMobile] = useState(false);
   const [editorState, setEditorState] = useState<MonacoEditorLanguageClientWrapper | null>(null);
   const [languageID, setLanguageID] = useState<number>(71);
+  const { isLoading } = useLanguageExtensionLoader(languageID, editorState);
   const { login, register, logout } = useKindeAuth();
   const auth = useKindeAuth();
   const user = auth.user;
   const JudgeAPI = useJudge();
+
 
   useEffect(() => {
     const checkMobile = () => {
@@ -50,28 +52,37 @@ export default function MonacoPage() {
     }
   }, [isMobile]);
 
+  const editorInitialized = React.useRef(false);
+
   useEffect(() => {
-    if (!isMobile) {
+    if (!isMobile && !editorInitialized.current) {
       const initEditor = async () => {
         const wrapper = new MonacoEditorLanguageClientWrapper();
-        const wrapperConfig = VSConfig(
-          "/workspace",
-          "print('Hello, World!')",
-          "/workspace/script.py",
-          {
-            lspHost: "localhost",
-            lspPort: 8080,
-            lspPath: "lsp/pyright",
-            lspSecured: false,
-          },
-        );
+        const wrapperConfig = VSConfig();
         await wrapper.init(wrapperConfig);
         await wrapper.start();
+        editorInitialized.current = true;
         setEditorState(wrapper);
       };
       initEditor();
     }
   }, [isMobile]);
+
+
+  useEffect(() => {
+    if (editorState && LANGUAGE_CONFIG[languageID]) {
+      const config = LANGUAGE_CONFIG[languageID];
+      editorState.updateCodeResources({
+        main: {
+          text: config.defaultText,
+          fileExt: config.fileExt,
+        }
+      }).catch(error => {
+        console.error('Failed to update editor resources:', error);
+        toast.error('Failed to update editor. Please refresh the page.');
+      });
+    }
+  }, [languageID, editorState]);
 
   if (isMobile) {
     return (
@@ -82,7 +93,6 @@ export default function MonacoPage() {
       </div>
     );
   }
-
   return (
     <div className="min-h-screen bg-[#211e20] text-[#e9efec] font-mono flex flex-col">
       <CustomToast />
@@ -102,6 +112,7 @@ export default function MonacoPage() {
           <div
             id="monaco-editor-root"
             className="h-full"
+            style={{ visibility: isLoading ? 'hidden' : 'visible' }}
           />
         </Panel>
         <PanelResizeHandle className="w-2 bg-[#3c3836] hover:bg-[#504945] cursor-col-resize" />

@@ -51,6 +51,8 @@ export default defineConfig({
 			"vscode-oniguruma",
 			"@vscode/vscode-languagedetection",
 			"marked",
+			"@codingame/monaco-vscode-python-default-extension",
+			"@codingame/monaco-vscode-typescript-language-features-default-extension",
 		],
 		exclude: [],
 		esbuildOptions: {

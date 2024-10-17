@@ -1,18 +1,25 @@
-import type { MonacoEditorLanguageClientWrapper } from "monaco-editor-wrapper";
 import React from "react";
-import { useEffect, useState } from "react";
+import { useState } from "react";
 import { Modal, Button, Form } from "react-bootstrap";
-import toast from "react-hot-toast";
 import type { JudgeAPISpec } from "src/hooks/useJudge";
-import Submissions from "src/hooks/useSubmissions";
+import type Submissions from "src/hooks/useSubmissions";
 
 interface StdinModalProps {
-	show: boolean
-	onHide: () => void
-	languageId: number
-	onSubmit: (stdin: string, JudgeAPI: JudgeAPISpec, languageId: number, setSubmissions: React.Dispatch<React.SetStateAction<Submissions.StoredSubmission[]>>) => Promise<void>
-	setSubmissions: React.Dispatch<React.SetStateAction<Submissions.StoredSubmission[]>>
-	judgeApi: JudgeAPISpec
+	show: boolean;
+	onHide: () => void;
+	languageId: number;
+	onSubmit: (
+		stdin: string,
+		JudgeAPI: JudgeAPISpec,
+		languageId: number,
+		setSubmissions: React.Dispatch<
+			React.SetStateAction<Submissions.StoredSubmission[]>
+		>,
+	) => Promise<void>;
+	setSubmissions: React.Dispatch<
+		React.SetStateAction<Submissions.StoredSubmission[]>
+	>;
+	judgeApi: JudgeAPISpec;
 }
 
 const StdinModal: React.FC<StdinModalProps> = ({

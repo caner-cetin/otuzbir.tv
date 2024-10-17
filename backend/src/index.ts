@@ -70,7 +70,7 @@ registerLanguageServer(app, {
 	// bun doesnt work.
 	runCommand: LanguageName.node,
 	runCommandArgs: [
-		resolve(baseDir, "../node_modules/pyright/dist/pyright-langserver.js"),
+		resolve(baseDir, "../node_modules/.bin/pyright-langserver"),
 		"--stdio",
 	],
 	logMessages: true,

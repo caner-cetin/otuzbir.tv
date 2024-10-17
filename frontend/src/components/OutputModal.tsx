@@ -88,9 +88,9 @@ const OutputModal: React.FC<OutputModalProps> = ({
     ];
 
     const timeData = [
-      { name: 'Exec Time', value: Number.parseFloat(submissionResult.time) },
-      { name: 'CPU Time Limit', value: Number.parseFloat(submissionResult.cpu_time_limit) },
-      { name: 'Wall Time', value: Number.parseFloat(submissionResult.wall_time) },
+      { name: 'Exec Time', value: Number.parseFloat(submissionResult.time) * 1000 },
+      { name: 'Wall Time', value: Number.parseFloat(submissionResult.wall_time) * 1000 },
+      { name: 'CPU Time Limit', value: Number.parseFloat(submissionResult.cpu_time_limit) * 1000 },
     ];
 
     return (
@@ -115,7 +115,7 @@ const OutputModal: React.FC<OutputModalProps> = ({
             </ResponsiveContainer>
           </div>
           <div>
-            <h6 className="text-center">Time Usage (seconds)</h6>
+            <h6 className="text-center">Time Usage (milliseconds)</h6>
             <ResponsiveContainer width="100%" height={305}>
               <BarChart data={timeData}>
                 <XAxis

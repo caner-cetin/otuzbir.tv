@@ -114,7 +114,9 @@ export namespace Submissions {
 		setSubmissions((prev) =>
 			[newSubmission, ...prev].sort((a, b) => b.localId - a.localId),
 		);
-		toast.success("Submission successful");
+		toast.loading("Submission in progress...", {
+			duration: 3000,
+		});
 	}
 
 	export function handleClearSubmissions(
