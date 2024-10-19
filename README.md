@@ -1,46 +1,67 @@
+work in progress, even readme lol.
 
-code runner based on judge0 api
+- [supported languages](#supported-languages)
+  - [available packages](#available-packages)
+  - [notes](#notes)
+
 
 ## supported languages
 
-| Language         |  LSP  | Syntax Highlighting | Execution |
-| ---------------- | :---: | :-----------------: | :-------: |
-| Assembly (NASM)  |       |                     |     ✓     |
-| Bash             |       |                     |     ✓     |
-| Basic            |       |                     |     ✓     |
-| C (Clang)        |       |                     |     ✓     |
-| C++ (Clang)      |       |                     |     ✓     |
-| C (GCC)          |       |                     |     ✓     |
-| C++ (GCC)        |       |                     |     ✓     |
-| Clojure          |       |                     |     ✓     |
-| C# (Mono)        |       |                     |     ✓     |
-| COBOL            |       |                     |     ✓     |
-| Common Lisp      |       |                     |     ✓     |
-| D                |       |                     |     ✓     |
-| Elixir           |       |                     |     ✓     |
-| Erlang           |       |                     |     ✓     |
-| F#               |       |                     |     ✓     |
-| Fortran          |       |                     |     ✓     |
-| Go               |       |                     |     ✓     |
-| Groovy           |       |                     |     ✓     |
-| Haskell          |       |                     |     ✓     |
-| Java             |       |                     |     ✓     |
-| JavaScript       |   ✓   |          ✓          |     ✓     |
-| Kotlin           |       |                     |     ✓     |
-| Lua              |       |                     |     ✓     |
-| Objective-C      |       |                     |     ✓     |
-| OCaml            |       |                     |     ✓     |
-| Octave           |       |                     |     ✓     |
-| Pascal           |       |                     |     ✓     |
-| Perl             |       |                     |     ✓     |
-| PHP              |       |                     |     ✓     |
-| Prolog           |       |                     |     ✓     |
-| Python           |   ✓   |          ✓          |     ✓     |
-| R                |       |                     |     ✓     |
-| Ruby             |       |                     |     ✓     |
-| Rust             |       |                     |     ✓     |
-| Scala            |       |                     |     ✓     |
-| SQL              |       |                     |     ✓     |
-| Swift            |       |                     |     ✓     |
-| TypeScript       |   ✓   |          ✓          |     ✓     |
-| Visual Basic.NET |       |                     |     ✓     |
+- Assembly (NASM)
+- Bash
+- Basic
+- C (Clang)
+- C++ (Clang)
+- C (GCC)
+- C++ (GCC)
+- Clojure
+- C# (Mono)
+- COBOL
+- Common Lisp
+- D
+- Elixir
+- Erlang
+- F#
+- Fortran
+- Go
+- Groovy
+- Haskell
+- Java
+- JavaScript
+- Kotlin
+- Lua
+- Objective-C
+- OCaml
+- Octave
+- Pascal
+- Perl
+- PHP
+- Prolog
+- Python
+- R
+- Ruby
+- Rust
+- Scala
+- SQL
+- Swift
+- TypeScript
+- Visual Basic.NET
+
+### available packages
+
+warning: there are ML libraries installed in code runners, but memory is limited to 125 MB per execution, and each execution is limited to 5 seconds. if you need more, or find limits too low, please contact me.
+
+- python
+  - python2 and 3
+  - mlxtend
+  - numpy
+  - pandas
+  - scikit-learn
+  - pytest
+  - scipy
+
+wip
+
+### notes
+
+- Basic and Octave has no modes, so they are rendered as plain text.

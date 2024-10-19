@@ -109,7 +109,6 @@ export interface JudgeAPISpec {
 		unknown
 	>;
 }
-
 // Hook
 export function useJudge(): JudgeAPISpec {
 	const healthMutation = useMutation<HealthResponse, Error>({

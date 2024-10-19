@@ -2,7 +2,7 @@
 @import 'tailwindcss/components';
 @import 'tailwindcss/utilities';
 @import 'bootstrap/dist/css/bootstrap.min.css';
-
+@import "https://cdn.jsdelivr.net/gh/devicons/devicon@latest/devicon.min.css";
 .crt::after {
   content: " ";
   display: block;
@@ -347,4 +347,33 @@ input[type="range"]::-moz-range-track {
   border-radius: 3px;
   background-color: lightgray;
   -webkit-box-shadow: 0 0 1px rgba(255,255,255,.75);        
+}
+
+/* Add to your global CSS file */
+.scrollbar-thin::-webkit-scrollbar {
+  width: 6px;
+}
+
+.scrollbar-thin::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+.scrollbar-thin::-webkit-scrollbar-thumb {
+  background: #4a4a4a;
+  border-radius: 3px;
+}
+
+.scrollbar-thin::-webkit-scrollbar-thumb:hover {
+  background: #555555;
+}
+
+/* Ensure proper Monaco editor rendering */
+.monaco-editor {
+  padding: 0;
+  margin: 0;
+}
+
+.monaco-editor .overflow-guard {
+  width: 100% !important;
+  height: 100% !important;
 }

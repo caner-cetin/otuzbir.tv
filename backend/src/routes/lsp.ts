@@ -22,10 +22,10 @@ import {
 } from "vscode-languageserver-protocol";
 import type { FastifyInstance, FastifyRequest, FastifyReply } from "fastify";
 import { WebSocket } from "ws";
-
 export enum LanguageName {
 	node = "node",
 	java = "java",
+	gopls = "gopls",
 }
 
 export interface LanguageServerRunConfig {

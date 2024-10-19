@@ -1,8 +1,7 @@
-// biome-ignore lint/style/useImportType: <fuck off>
 import React from "react";
 import { useState, useRef, useEffect } from "react";
 import { Tab, Tabs, Spinner, Button } from "react-bootstrap";
-import { useQuery, useQueryClient } from "@tanstack/react-query";
+import { Query, useQuery, useQueryClient } from "@tanstack/react-query";
 import {
   RefreshCw,
   Clock,
@@ -10,22 +9,15 @@ import {
   MemoryStick,
   Cpu,
   Calendar,
-  Hash,
-  FileCode,
   Terminal,
 } from "lucide-react";
 import { BellSimpleSlash, Bug, MaskSad, QuestionMark, Queue } from '@phosphor-icons/react'
 import type { GetSubmissionResponse } from "src/hooks/useJudge";
 import { BarChart, Bar, XAxis, YAxis, Tooltip, ResponsiveContainer } from 'recharts';
-
-interface Submission {
-  localId: number;
-  globalId: number;
-  token: string;
-}
+import type { StoredSubmission } from "src/hooks/useSubmissions";
 
 interface OutputModalProps {
-  submissions: Submission[];
+  submissions: StoredSubmission[];
   getSubmission: (token: string) => Promise<GetSubmissionResponse>;
 }
 
@@ -33,34 +25,65 @@ const OutputModal: React.FC<OutputModalProps> = ({
   submissions,
   getSubmission,
 }) => {
-  const [activeTab, setActiveTab] = useState<string>(
-    submissions[0]?.token || "",
-  );
-  const queryClient = useQueryClient();
-  const tabsRef = useRef<HTMLDivElement>(null);
+  // Don't set an initial active tab
+  const [activeTab, setActiveTab] = useState<string | null>(null);
+  const initialRenderRef = useRef(true);
+  // Keep track of the highest submission ID we've seen
+  const lastSeenSubmissionRef = useRef<number>(0);
+  const [refetchInterval, setRefetchInterval] = useState<number | false>(false);
+  // Function to get numeric ID from submission
+  const getSubmissionId = (submission: StoredSubmission): number => submission.localId;
 
-  const {
-    data: submissionResult,
-    isLoading,
-    isError,
-  } = useQuery({
+  // biome-ignore lint/correctness/useExhaustiveDependencies: <getSubmissionId changes on every re-render and should not be used as a hook dependency.biomelint/correctness/useExhaustiveDependencies>
+  useEffect(() => {
+    // Skip the first render
+    if (initialRenderRef.current) {
+      initialRenderRef.current = false;
+      return;
+    }
+
+    // Find the highest submission ID in the current list
+    const currentMaxId = Math.max(...submissions.map(getSubmissionId));
+
+    // If we have submissions and found a new highest ID
+    if (submissions.length > 0 && currentMaxId > lastSeenSubmissionRef.current) {
+      // Find the submission with the highest ID
+      const latestSubmission = submissions.reduce((latest, current) => {
+        const currentId = getSubmissionId(current);
+        const latestId = getSubmissionId(latest);
+        return currentId > latestId ? current : latest;
+      });
+
+      // Update our reference and set the active tab
+      lastSeenSubmissionRef.current = currentMaxId;
+      setActiveTab(latestSubmission.token);
+    }
+  }, [submissions]);
+
+  const query = useQuery({
     queryKey: ["submission", activeTab],
-    queryFn: () => getSubmission(activeTab),
+    // biome-ignore lint/style/noNonNullAssertion: <explanation>
+    queryFn: () => getSubmission(activeTab!),
     enabled: !!activeTab,
+    refetchInterval: (data) => {
+      if (data.state.data?.status.id === 2 || data.state.data?.status.id === 1) {
+        setRefetchInterval(500);
+        return 500;
+      }
+      setRefetchInterval(false);
+      return false;
+    }
   });
 
+  const { data: submissionResult, isLoading, isError, refetch } = query;
+
   const handleRefresh = (token: string) => {
-    queryClient.invalidateQueries({ queryKey: ["submission", token] });
+    if (token === activeTab) {
+      refetch();
+    }
   };
 
-  useEffect(() => {
-    if (tabsRef.current) {
-      tabsRef.current.scrollLeft = 0;
-    }
-  }, []);
-
   const getStatusIcon = (id: number) => {
-    // https://judge.otuzbir.tv/docs#statuses-and-languages-status
     switch (id) {
       case 1:
         return <Queue />;
@@ -137,6 +160,22 @@ const OutputModal: React.FC<OutputModalProps> = ({
   };
 
   const renderSubmissionResult = () => {
+    if (!activeTab) {
+      return (
+        <div className="flex items-center justify-center h-full text-gray-500">
+          <div className="text-center">
+            <p className="mb-2">No submission selected</p>
+            <p className="text-sm">Select a submission to view results or execute code to create a new submission</p>
+          </div>
+        </div>
+      );
+    }
+    if (isLoading) return <Spinner animation="border" />;
+    if (isError)
+      return (
+        <div className="text-red-500">Error fetching submission result</div>
+      );
+    if (!submissionResult) return null;
     if (isLoading) return <Spinner animation="border" />;
     if (isError)
       return (
@@ -145,7 +184,7 @@ const OutputModal: React.FC<OutputModalProps> = ({
     if (!submissionResult) return null;
 
     return (
-      <div className="bg-[#2c2a2a] p-4 rounded-lg shadow-lg">
+      <div className="bg-[#2c2a2a] p-4 rounded-lg shadow-lg overflow-auto">
         <div className="flex items-center justify-between mb-2">
           <h4 className="text-lg font-bold flex items-center">
             {getStatusIcon(submissionResult.status.id)}
@@ -154,11 +193,16 @@ const OutputModal: React.FC<OutputModalProps> = ({
                 ? "Executed"
                 : submissionResult.status.description}
             </span>
+            {refetchInterval && (
+              <span className="text-sm text-gray-400 ml-2">
+                Refreshing... Interval: {refetchInterval}ms
+              </span>
+            )}
           </h4>
         </div>
 
         <div className="text-sm">
-          <span className="mr-2">{submissionResult.language.name}</span>
+          <span className="mr-2 font-extrabold">{submissionResult.language.name}</span>
           <span>exited with code {submissionResult.exit_code}</span>
         </div>
 
@@ -168,12 +212,12 @@ const OutputModal: React.FC<OutputModalProps> = ({
             <span>Exec: {submissionResult.time}s</span>
           </div>
           <div className="flex items-center">
-            <Cpu className="mr-1 w-4 h-4" />
-            <span>CPU: {submissionResult.cpu_time_limit}s</span>
-          </div>
-          <div className="flex items-center">
             <Clock className="mr-1 w-4 h-4" />
             <span>Wall: {submissionResult.wall_time}s</span>
+          </div>
+          <div className="flex items-center">
+            <Cpu className="mr-1 w-4 h-4" />
+            <span>Limit: {submissionResult.cpu_time_limit}s</span>
           </div>
           <div className="flex items-center">
             <MemoryStick className="mr-1 w-4 h-4" />
@@ -189,14 +233,13 @@ const OutputModal: React.FC<OutputModalProps> = ({
           </div>
         </div>
 
-
         {submissionResult.stdout && (
           <div className="mb-4">
             <h5 className="font-semibold mb-2 flex items-center">
               <Terminal className="mr-2" />
               Output:
             </h5>
-            <pre className="bg-[#3c3836] p-3 rounded overflow-x-auto">
+            <pre className="bg-[#3c3836] p-3 rounded overflow-x-auto max-h-96">
               {submissionResult.stdout}
             </pre>
           </div>
@@ -207,7 +250,7 @@ const OutputModal: React.FC<OutputModalProps> = ({
               <Terminal className="mr-2" />
               Error:
             </h5>
-            <pre className="bg-[#3c3836] p-3 rounded overflow-x-auto text-red-400">
+            <pre className="bg-[#3c3836] p-3 rounded overflow-x-auto max-h-96 text-red-400">
               {submissionResult.stderr}
             </pre>
           </div>
@@ -218,7 +261,7 @@ const OutputModal: React.FC<OutputModalProps> = ({
               <Terminal className="mr-2" />
               Compile Output:
             </h5>
-            <pre className="bg-[#3c3836] p-3 rounded overflow-x-auto">
+            <pre className="bg-[#3c3836] p-3 rounded overflow-x-auto max-h-96">
               {submissionResult.compile_output}
             </pre>
           </div>
@@ -229,52 +272,69 @@ const OutputModal: React.FC<OutputModalProps> = ({
               <Terminal className="mr-2" />
               Message:
             </h5>
-            <pre className="bg-[#3c3836] p-3 rounded overflow-x-auto">
+            <pre className="bg-[#3c3836] p-3 rounded overflow-x-auto max-h-96">
               {submissionResult.message}
             </pre>
           </div>
         )}
         {renderPerformanceCharts()}
-
       </div>
     );
   };
 
-  return (
-    <div className="output-modal">
-      <div ref={tabsRef} className="overflow-x-auto whitespace-nowrap">
-        <Tabs
-          activeKey={activeTab}
-          onSelect={(k) => setActiveTab(k || "")}
-          className="mb-3 flex"
-        >
-          {submissions.map((submission) => (
-            <Tab
-              key={submission.token}
-              eventKey={submission.token}
-              title={
-                <div className="flex items-center">
-                  <span>Submission {submission.localId}</span>
-                  {activeTab === submission.token && (
-                    <Button
-                      variant="outline-secondary"
-                      size="sm"
-                      className="ml-2 bg-[#3c3836] text-[#e9efec] border-[#555568] hover:bg-[#504945]"
-                      onClick={(e) => {
-                        e.stopPropagation();
-                        handleRefresh(submission.token);
-                      }}
-                    >
-                      <RefreshCw size={16} />
-                    </Button>
-                  )}
+  const renderSubmissionTabs = () => (
+    <div className="flex flex-col">
+      <Tabs
+        activeKey="submissions"
+        className="mb-2"
+      >
+        <Tab eventKey="submissions" title="Submissions" />
+      </Tabs>
+      <div className="relative">
+        <div className="flex overflow-x-auto overflow-y-hidden whitespace-nowrap pb-2 ml-4" style={{
+          msOverflowStyle: 'none',
+          scrollbarWidth: 'none',
+          WebkitOverflowScrolling: 'touch'
+        }}>
+          <div className="flex gap-2 min-w-min">
+            {submissions.map((submission) => (
+              <Button
+                key={submission.token}
+                variant={activeTab === submission.token ? "primary" : "outline-secondary"}
+                size="sm"
+                onClick={() => setActiveTab(submission.token)}
+                className="flex items-stretch"
+              >
+                <div>
+                  <i className={submission.iconClass} />
+                  <span className="ml-1">{submission.localId}</span>
                 </div>
-              }
-            />
-          ))}
-        </Tabs>
+                {(activeTab === submission.token && submissionResult?.status_id !== 3) && (
+                  <RefreshCw
+                    size={14}
+                    className="cursor-pointer"
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      handleRefresh(submission.token);
+                    }}
+                  />
+                )}
+              </Button>
+            ))}
+          </div>
+        </div>
+      </div >
+    </div >
+  );
+
+  return (
+    <div className="output-modal h-full max-h-screen flex flex-col overflow-hidden">
+      <div className="flex-none">
+        {renderSubmissionTabs()}
       </div>
-      <div className="mt-4">{activeTab && renderSubmissionResult()}</div>
+      <div className="mt-4 flex-1 overflow-auto">
+        {activeTab && renderSubmissionResult()}
+      </div>
     </div>
   );
 };

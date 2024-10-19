@@ -27,8 +27,6 @@
     "pyright": "^1.1.384",
     "table": "^6.8.2",
     "uuid": "^10.0.0",
-    "vscode-languageserver-protocol": "^3.17.5",
-    "vscode-ws-jsonrpc": "^3.3.2",
     "zod": "^3.23.8"
   },
   "devDependencies": {

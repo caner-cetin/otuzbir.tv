@@ -9,7 +9,7 @@ import fastify, {
 } from "fastify";
 import { plugin as AllRoutes } from "./middlewares/AllRoutes";
 import { v4 as uuidv4 } from "uuid";
-import { JWT_SECRET } from "./config";
+import { ECLIPSE_JDTLS_PATH, JWT_SECRET, WORKSPACE_FOLDER } from "./config";
 import { InitDB } from "./db";
 import { errorHandler } from "./middlewares/Error";
 import { authPlugin } from "./middlewares/JWT";
@@ -75,11 +75,32 @@ registerLanguageServer(app, {
 	],
 	logMessages: true,
 });
+registerLanguageServer(app, {
+	serverName: "CLANGD",
+	pathName: "/clangd",
+	runCommand: "clangd",
+	runCommandArgs: ["--background-index"],
+	logMessages: true,
+});
+registerLanguageServer(app, {
+	serverName: "GOPLS",
+	pathName: "/gopls",
+	runCommand: LanguageName.gopls,
+	runCommandArgs: ["serve"],
+	logMessages: true,
+});
+registerLanguageServer(app, {
+	serverName: "NASM",
+	pathName: "/nasm",
+	runCommand: "asm-lsp",
+	runCommandArgs: [],
+	logMessages: true,
+});
 const start = async () => {
 	try {
 		await InitDB();
 		await app.listen({
-			port: process.env.PORT ? Number.parseInt(process.env.PORT) : 8080,
+			port: process.env.PORT ? Number.parseInt(process.env.PORT) : 7979,
 		});
 		app.log.info(`Server running on ${process.env.PORT}`);
 	} catch (err) {

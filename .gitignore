@@ -11,3 +11,7 @@ judge0.conf
 dist
 frontend/dependency-graph.svg
 frontend/.dependency-cruiser.cjs
+vsc-server
+vsc-extensions
+frontend/src/editor/extensions
+fonts

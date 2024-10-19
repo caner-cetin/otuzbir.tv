@@ -45,13 +45,10 @@ export const JUDGE0_AUTHN_TOKEN = ensureDefined(
 	"AUTHN_TOKEN not found in environment variables",
 );
 
-const response = await Bun.fetch(
-	`${JUDGE0_BASE_API_URL}/authenticate`,
-	{
-		headers: { [JUDGE0_AUTHN_HEADER]: JUDGE0_AUTHN_TOKEN },
-		method: "POST",
-	},
-);
+const response = await Bun.fetch(`${JUDGE0_BASE_API_URL}/authenticate`, {
+	headers: { [JUDGE0_AUTHN_HEADER]: JUDGE0_AUTHN_TOKEN },
+	method: "POST",
+});
 if (!response.ok) {
 	console.log(
 		`>> ${response.url} ${response.status} ${response.statusText} ${await response.json()} ${response.headers}`,
@@ -65,3 +62,9 @@ if (!response.ok) {
 		"JUDGE0 authentication successful, initialization of the judge is complete. Beep.",
 	);
 }
+
+export const ECLIPSE_JDTLS_PATH = "/opt/homebrew/Cellar/jdtls/1.40.0";
+export const WORKSPACE_FOLDER = ensureDefined(
+	process.env.WORKSPACE_FOLDER,
+	"WORKSPACE_FOLDER not found in environment variables",
+);

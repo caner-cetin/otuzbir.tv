@@ -1,8 +1,4 @@
 import type { FastifyPluginAsync, FastifyRequest } from "fastify";
-import { Judge0 } from "../util/judge0";
-import { HttpException } from "../models/Exception";
-import { DB } from "../db";
-import dayjs from "dayjs";
 import {
 	GetSubmission,
 	Health,
@@ -12,7 +8,6 @@ import {
 	SubmitSubmission,
 } from "./judge.controller";
 import { $ref } from "./judge.schema";
-import { number, string } from "zod";
 
 export const judgeRoutes: FastifyPluginAsync = async (fastify) => {
 	fastify.get(

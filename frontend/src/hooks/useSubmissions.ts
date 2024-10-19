@@ -1,18 +1,20 @@
 import { toast } from "react-hot-toast";
-import "@codingame/monaco-vscode-python-default-extension";
 import type { JudgeAPISpec } from "./useJudge";
-import type { MonacoEditorLanguageClientWrapper } from "monaco-editor-wrapper";
+import ace from "react-ace";
+import type AceEditor from "react-ace";
+import type ReactAce from "react-ace/lib/ace";
+import { LANGUAGE_CONFIG } from "src/editor/languages";
+
+export interface StoredSubmission {
+	localId: number;
+	globalId: number;
+	token: string;
+	iconClass: string;
+}
 
 export namespace Submissions {
 	const SUBMISSION_COUNTER_KEY = "submissionCounter";
 	const SUBMISSIONS_KEY = "submissions";
-
-	export interface StoredSubmission {
-		localId: number;
-		globalId: number;
-		token: string;
-	}
-
 	export function getNextSubmissionId(): number {
 		const currentCounter = localStorage.getItem(SUBMISSION_COUNTER_KEY);
 		const nextId = currentCounter ? Number.parseInt(currentCounter, 10) + 1 : 1;
@@ -37,7 +39,7 @@ export namespace Submissions {
 	}
 
 	export async function handleSubmitCode(
-		editor: MonacoEditorLanguageClientWrapper | null,
+		editor: ReactAce | null,
 		languageId: number,
 		withStdin: boolean,
 		setShowStdinModal: (show: boolean) => void,
@@ -45,16 +47,12 @@ export namespace Submissions {
 		setSubmissions: React.Dispatch<React.SetStateAction<StoredSubmission[]>>,
 	): Promise<void> {
 		if (editor === null) {
-			toast.error("editor is uninitalized");
-			return;
-		}
-		const code = editor?.getTextContents()?.text;
-		if (code === undefined || code === null) {
-			toast.error("No code to submit");
 			return;
 		}
 		try {
-			const result = await JudgeAPI.submitCode.mutateAsync(code);
+			const result = await JudgeAPI.submitCode.mutateAsync(
+				editor.editor.getValue(),
+			);
 			if (withStdin) {
 				setShowStdinModal(true);
 			} else {
@@ -66,6 +64,7 @@ export namespace Submissions {
 				);
 			}
 		} catch (error) {
+			console.error(error);
 			toast.error("Failed to submit code");
 		}
 	}
@@ -109,7 +108,12 @@ export namespace Submissions {
 			languageId: languageId,
 		});
 		const localId = getNextSubmissionId();
-		const newSubmission = { localId, globalId, token: result.token };
+		const newSubmission = {
+			localId,
+			globalId,
+			token: result.token,
+			iconClass: LANGUAGE_CONFIG[languageId]?.iconClass || "",
+		};
 		saveSubmission(newSubmission);
 		setSubmissions((prev) =>
 			[newSubmission, ...prev].sort((a, b) => b.localId - a.localId),

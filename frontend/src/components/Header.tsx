@@ -19,7 +19,7 @@ interface HeaderProps {
 }
 
 export default function Header({
-  user, 
+  user,
   languages,
   setLanguageID,
   onLogin,
@@ -27,7 +27,7 @@ export default function Header({
   onLogout,
   onSubmit,
   onSubmitWithStdin,
-  onClearSubmissions
+  onClearSubmissions,
 }: HeaderProps) {
   const loginOpts: AuthOptions = {}
   const signupOpts: AuthOptions = {}

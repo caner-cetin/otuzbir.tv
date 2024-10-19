@@ -1,47 +1,44 @@
-import React, { useState, useEffect } from "react";
-import toast, { Toaster } from "react-hot-toast";
-import { Panel, PanelGroup, PanelResizeHandle } from "react-resizable-panels";
-import Header from "../components/Header";
-import StdinModal from "../components/StdinModal";
-import OutputModal from "../components/OutputModal";
-import "@codingame/monaco-vscode-python-default-extension";
+import { useKindeAuth } from "@kinde-oss/kinde-auth-react";
 import { createFileRoute } from "@tanstack/react-router";
-import { MonacoEditorLanguageClientWrapper } from "monaco-editor-wrapper";
-import { VSConfig } from "../editor/config";
-import { useJudge, getSubmission } from "src/hooks/useJudge";
+import React, { useEffect, useRef, useState } from "react";
+import { Panel, PanelGroup, PanelResizeHandle } from "react-resizable-panels";
+import CustomToast from "src/components/CustomToast";
+import AceEditor from 'react-ace';
+import { getSubmission, useJudge } from "src/hooks/useJudge";
+import Submissions from "src/hooks/useSubmissions";
 import {
   getStoredSubmissions,
   type StoredSubmission,
 } from "src/utils/submissionCounter";
-import { useKindeAuth } from "@kinde-oss/kinde-auth-react";
-import Submissions from "src/hooks/useSubmissions";
-import CustomToast from "src/components/CustomToast";
-import { LANGUAGE_CONFIG, useLanguageExtensionLoader } from "src/editor/loadLanguageExtension";
+import Header from "../components/Header";
+import 'ace-builds/src-noconflict/ext-error_marker';
+import 'ace-builds/src-noconflict/ext-inline_autocomplete';
+import 'ace-builds/src-noconflict/ext-code_lens'
+import 'ace-builds/src-noconflict/ext-statusbar';
+import OutputModal from "../components/OutputModal";
+import StdinModal from "../components/StdinModal";
+import { configureAce } from "src/editor/config";
+import { LANGUAGE_CONFIG } from "src/editor/languages";
 export const Route = createFileRoute("/code")({
   component: MonacoPage,
 });
 
+
 export default function MonacoPage() {
   const [showStdinModal, setShowStdinModal] = useState(false);
   const [submissions, setSubmissions] = useState<StoredSubmission[]>([]);
-  const [isMobile, setIsMobile] = useState(false);
-  const [editorState, setEditorState] = useState<MonacoEditorLanguageClientWrapper | null>(null);
+  const [isMobile, setIsMobile] = useState(window.innerWidth < 768);
   const [languageID, setLanguageID] = useState<number>(71);
-  const { isLoading } = useLanguageExtensionLoader(languageID, editorState);
+  const code = useRef<AceEditor | null>(null);
   const { login, register, logout } = useKindeAuth();
   const auth = useKindeAuth();
   const user = auth.user;
   const JudgeAPI = useJudge();
 
-
   useEffect(() => {
-    const checkMobile = () => {
-      setIsMobile(window.innerWidth < 768); // Adjust this value as needed
-    };
-
-    checkMobile();
+    const checkMobile = () => setIsMobile(window.innerWidth < 768);
     window.addEventListener("resize", checkMobile);
-
+    configureAce();
     return () => window.removeEventListener("resize", checkMobile);
   }, []);
 
@@ -52,37 +49,15 @@ export default function MonacoPage() {
     }
   }, [isMobile]);
 
-  const editorInitialized = React.useRef(false);
-
   useEffect(() => {
-    if (!isMobile && !editorInitialized.current) {
-      const initEditor = async () => {
-        const wrapper = new MonacoEditorLanguageClientWrapper();
-        const wrapperConfig = VSConfig();
-        await wrapper.init(wrapperConfig);
-        await wrapper.start();
-        editorInitialized.current = true;
-        setEditorState(wrapper);
-      };
-      initEditor();
-    }
-  }, [isMobile]);
+    const language = LANGUAGE_CONFIG[languageID];
+    language?.extensionModule().then(() => {
+      code.current?.editor?.session.setMode(`ace/mode/${language?.mode}`);
+      code.current?.editor?.setValue(language?.defaultText);
+    });
+  }, [languageID])
 
 
-  useEffect(() => {
-    if (editorState && LANGUAGE_CONFIG[languageID]) {
-      const config = LANGUAGE_CONFIG[languageID];
-      editorState.updateCodeResources({
-        main: {
-          text: config.defaultText,
-          fileExt: config.fileExt,
-        }
-      }).catch(error => {
-        console.error('Failed to update editor resources:', error);
-        toast.error('Failed to update editor. Please refresh the page.');
-      });
-    }
-  }, [languageID, editorState]);
 
   if (isMobile) {
     return (
@@ -103,17 +78,31 @@ export default function MonacoPage() {
         onLogin={login}
         onSignup={register}
         onLogout={logout}
-        onSubmit={() => Submissions.handleSubmitCode(editorState, languageID, false, setShowStdinModal, JudgeAPI, setSubmissions)}
-        onSubmitWithStdin={() => Submissions.handleSubmitCode(editorState, languageID, true, setShowStdinModal, JudgeAPI, setSubmissions)}
+        onSubmit={() => Submissions.handleSubmitCode(code.current, languageID, false, setShowStdinModal, JudgeAPI, setSubmissions)}
+        onSubmitWithStdin={() => Submissions.handleSubmitCode(code.current, languageID, true, setShowStdinModal, JudgeAPI, setSubmissions)}
         onClearSubmissions={() => Submissions.handleClearSubmissions(setSubmissions)}
       />
       <PanelGroup direction="horizontal" className="flex-1">
         <Panel defaultSize={70} minSize={30}>
-          <div
-            id="monaco-editor-root"
-            className="h-full"
-            style={{ visibility: isLoading ? 'hidden' : 'visible' }}
-          />
+          <div style={{ display: "flex", height: "100vh", width: "100%", overflow: "hidden", backgroundColor: "#1e1e1e" }}>
+            <div style={{ flex: 1, position: "relative" }}>
+              <AceEditor
+                mode="python"
+                ref={code}
+                theme="tomorrow_night_eighties"
+                name="ace-editor"
+                editorProps={{ $blockScrolling: true }}
+                setOptions={{
+                  enableBasicAutocompletion: true,
+                  enableLiveAutocompletion: true,
+                  enableSnippets: true,
+                  showLineNumbers: true,
+                  tabSize: 2,
+                }}
+                style={{ width: '100%', height: '100%' }}
+              />
+            </div>
+          </div>
         </Panel>
         <PanelResizeHandle className="w-2 bg-[#3c3836] hover:bg-[#504945] cursor-col-resize" />
         <Panel defaultSize={30} minSize={20}>
