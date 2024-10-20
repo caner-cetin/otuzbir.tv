@@ -1,9 +1,12 @@
 
+Code playground with 38 different environments, all with autocompletes, snippets, and syntax highlighters.
+
+![alt text](static/main.png)
+
 - [features](#features)
 - [supported languages](#supported-languages)
   - [available packages](#available-packages)
   - [notes](#notes)
-- [settings](#settings)
 
 ## features
 
@@ -24,9 +27,10 @@ here, check this video: https://youtu.be/St5z3afAguY (execution server is runnin
 
 - Share Code Output
 ![demo share code](static/share.gif)
+- Stdin Support
+![demo stdin](static/stdin.gif)
 - Execution and Loading Speed
 ![demo execution](static/exec.gif)
-
 - Dynamic Color Theme
 ![demo theme](static/theme.gif)
 
@@ -90,9 +94,3 @@ wip
 
 - Basic and Octave has no modes, so they are rendered as plain text.
 - readme.md in editor is the same as this file except there are no gifs.
-
-## settings
-
-- Color Theme
-Set to Tomorrow Night Eighties by default. There are approximately 36 color themes, and you can change them in settings.
-![demo theme](static/theme.gif)
