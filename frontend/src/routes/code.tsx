@@ -2,10 +2,13 @@ import { useKindeAuth } from "@kinde-oss/kinde-auth-react";
 import { createFileRoute } from "@tanstack/react-router";
 import React, { useEffect, useRef, useState } from "react";
 import AceEditor from "react-ace";
-import toast from "react-hot-toast";
 import { Panel, PanelGroup, PanelResizeHandle } from "react-resizable-panels";
 import CustomToast from "src/components/CustomToast";
-import SettingsModal, { CodeStorage, Settings, Themes } from "src/components/SettingsModal";
+import {
+  type CodeStorage,
+  Settings,
+  Themes,
+} from "src/components/SettingsModal";
 import { configureAce } from "src/editor/config";
 import { LANGUAGE_CONFIG } from "src/editor/languages";
 import { getSubmission, useJudge } from "src/hooks/useJudge";
@@ -13,20 +16,28 @@ import Submissions, { type StoredSubmission } from "src/hooks/useSubmissions";
 import { getStoredSubmissions } from "src/utils/submissionCounter";
 import Header from "../components/Header";
 import OutputModal from "../components/OutputModal";
+import StdinModal from "../components/StdinModal";
+
 await import("ace-builds/src-noconflict/ext-code_lens");
 await import("ace-builds/src-noconflict/ext-error_marker");
 await import("ace-builds/src-noconflict/ext-inline_autocomplete");
+await import("ace-builds/src-noconflict/ext-language_tools");
+await import('ace-builds/src-noconflict/ext-settings_menu');
 await import("ace-builds/src-noconflict/ext-statusbar");
-import StdinModal from "../components/StdinModal";
+
 export const Route = createFileRoute("/code")({
-  component: MonacoPage,
+  component: MainPage,
 });
 
-export default function MonacoPage() {
+export default function MainPage() {
   const [showStdinModal, setShowStdinModal] = useState(false);
   const [submissions, setSubmissions] = useState<StoredSubmission[]>([]);
   const [isMobile, setIsMobile] = useState(window.innerWidth < 768);
-  const [languageID, setLanguageID] = useState<number>(71);
+  const [languageID, setLanguageID] = useState<number>(
+    localStorage.getItem(Settings.LANGUAGE_ID)
+      ? Number.parseInt(localStorage.getItem(Settings.LANGUAGE_ID) ?? "71")
+      : 71,
+  );
   const [prevLanguageID, setPrevLanguageID] = useState<number>(71);
   const [sourceCode, setSourceCode] = useState<string | null>(null);
   const code = useRef<AceEditor | null>(null);
@@ -35,15 +46,34 @@ export default function MonacoPage() {
   const user = auth.user;
   const JudgeAPI = useJudge();
 
+  // biome-ignore lint/correctness/useExhaustiveDependencies: <we do not need to re-render upon language ID change>
   useEffect(() => {
     const checkMobile = () => setIsMobile(window.innerWidth < 768);
     window.addEventListener("resize", checkMobile);
     configureAce();
-    const loadingToast = toast.loading("Loading settings...")
-    const theme = localStorage.getItem(Settings.COLOR_THEME) || Themes.TomorrowNightEighties
-    toast.loading(`Setting theme to ${theme}`, { id: loadingToast })
+    const theme =
+      localStorage.getItem(Settings.COLOR_THEME) ||
+      Themes.TomorrowNightEighties;
     code.current?.editor?.setTheme(`ace/theme/${theme}`);
-    toast.success("Settings loaded!", { id: loadingToast })
+    code.current?.editor?.session.setMode(
+      `ace/mode/${LANGUAGE_CONFIG[languageID]?.mode}`,
+    );
+    const codeStorage = localStorage.getItem(Settings.CODE_STORAGE);
+    if (codeStorage) {
+      const codeStorageCast = JSON.parse(codeStorage) as CodeStorage;
+      const savedCode = codeStorageCast[
+        // @ts-ignore
+        code.current?.editor?.getSession().getMode().$id
+      ];
+      if (savedCode) {
+        code.current?.editor?.session.setValue(atob(savedCode));
+      }
+    }
+    if (code.current?.editor?.session.getValue() === "") {
+      code.current?.editor?.session.setValue(
+        LANGUAGE_CONFIG[languageID]?.defaultText || "",
+      );
+    }
     return () => window.removeEventListener("resize", checkMobile);
   }, []);
 
@@ -57,23 +87,36 @@ export default function MonacoPage() {
   // biome-ignore lint/correctness/useExhaustiveDependencies: <declaring both language id and source code causes to re-render 2 times when a source code is reloaded>
   useEffect(() => {
     const previousLanguage = LANGUAGE_CONFIG[prevLanguageID];
-    const codes = JSON.parse(localStorage.getItem(Settings.CODE_STORAGE) || '{}') as CodeStorage;
-    // @ts-ignore
-    const previousLanguageModeID: string = code.current?.editor?.getSession().getMode().$id;
+    const codes = JSON.parse(
+      localStorage.getItem(Settings.CODE_STORAGE) || "{}",
+    ) as CodeStorage;
+    const previousLanguageModeID: string = code.current?.editor
+      ?.getSession()
+      // @ts-ignore
+      .getMode().$id;
     const oldCode = code.current?.editor?.getValue();
-    codes[previousLanguageModeID] = oldCode ? btoa(oldCode) : btoa(previousLanguage?.defaultText || "");
+    codes[previousLanguageModeID] = oldCode
+      ? btoa(oldCode)
+      : btoa(previousLanguage?.defaultText || "");
     localStorage.setItem(Settings.CODE_STORAGE, JSON.stringify(codes));
 
     const currentLanguage = LANGUAGE_CONFIG[languageID];
     currentLanguage?.extensionModule().then(() => {
-      code.current?.editor?.session.setMode(`ace/mode/${currentLanguage?.mode}`);
-      // @ts-ignore
-      const currentLanguageModeID: string = code.current?.editor?.session.getMode().$id;
-      const cs = JSON.parse(localStorage.getItem(Settings.CODE_STORAGE) || '{}') as CodeStorage;
+      code.current?.editor?.session.setMode(
+        `ace/mode/${currentLanguage?.mode}`,
+      );
+      const currentLanguageModeID: string =
+        // @ts-ignore
+        code.current?.editor?.session.getMode().$id;
+      const cs = JSON.parse(
+        localStorage.getItem(Settings.CODE_STORAGE) || "{}",
+      ) as CodeStorage;
       const savedCode = cs[currentLanguageModeID];
 
       // Restore source code
-      code.current?.editor?.setValue(savedCode ? atob(savedCode) : currentLanguage?.defaultText || "");
+      code.current?.editor?.setValue(
+        savedCode ? atob(savedCode) : currentLanguage?.defaultText || "",
+      );
 
       if (sourceCode) {
         code.current?.editor?.setValue(sourceCode);
@@ -81,8 +124,8 @@ export default function MonacoPage() {
       }
     });
     setPrevLanguageID(languageID);
+    localStorage.setItem(Settings.LANGUAGE_ID, languageID.toString());
   }, [languageID]);
-
 
   if (isMobile) {
     return (
@@ -100,6 +143,7 @@ export default function MonacoPage() {
         code={code}
         user={user}
         languages={JudgeAPI.languages.data ?? []}
+        languageID={languageID}
         setLanguageID={setLanguageID}
         onLogin={login}
         onSignup={register}

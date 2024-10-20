@@ -18,6 +18,7 @@ export type CodeStorage = Record<string, string | undefined>
 export enum Settings {
   COLOR_THEME = "colorTheme",
   CODE_STORAGE = "codeStorage",
+  LANGUAGE_ID = "languageID"
 }
 
 export enum Themes {

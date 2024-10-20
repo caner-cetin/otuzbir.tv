@@ -16,9 +16,7 @@ import type { GetSubmissionResponse } from "src/hooks/useJudge";
 import { BarChart, Bar, XAxis, YAxis, Tooltip, ResponsiveContainer } from 'recharts';
 import type { StoredSubmission } from "src/hooks/useSubmissions";
 import type AceEditor from "react-ace";
-import { LANGUAGE_CONFIG } from "src/editor/languages";
 import toast from "react-hot-toast";
-import { CodeStorage, Settings } from "./SettingsModal";
 
 interface OutputModalProps {
   code: React.MutableRefObject<AceEditor | null>;
