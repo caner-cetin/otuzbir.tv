@@ -10,7 +10,7 @@ import { RenderFirstDropdown } from './RenderFirstDropdown';
 interface SettingsModalProps {
   code: React.MutableRefObject<AceEditor | null>;
   languageID: number;
-  setLanguageID: React.Dispatch<React.SetStateAction<number>>;
+  setLanguageID: React.Dispatch<React.SetStateAction<number>> | undefined;
   show: boolean;
   onHide: () => void;
 }
@@ -44,14 +44,14 @@ export default function SettingsModal({ code, languageID, setLanguageID, show, o
 
   return (
     <Modal show={show} onHide={onHide} centered>
-      <Modal.Header closeButton className="bg-[#3c3836] border-b border-[#555568] text-[#a0a08b]">
+      <Modal.Header closeButton className="bg-[#1e1e1e] border-b border-[#555568] text-[#a0a08b]">
         <Modal.Title>Settings</Modal.Title>
       </Modal.Header>
-      <Modal.Body className="bg-[#3c3836] text-[#e9efec]">
+      <Modal.Body className="bg-[#1e1e1e] text-[#e9efec]">
         <ColorThemeDropdown colorTheme={colorTheme} setColorTheme={setColorTheme} />
         <RenderFirstDropdown renderFirst={renderFirst} setRenderFirst={setRenderFirst} />
       </Modal.Body>
-      <Modal.Footer className="bg-[#3c3836] border-t border-[#555568]">
+      <Modal.Footer className="bg-[#1e1e1e] border-t border-[#555568]">
         <Button variant="secondary" onClick={onHide} className="text-[#e9efec] bg-[#504945] border-[#555568]">
           Close
         </Button>

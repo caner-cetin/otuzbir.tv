@@ -11,12 +11,18 @@
 // Import Routes
 
 import { Route as rootRoute } from './routes/__root'
-import { Route as CodeImport } from './routes/code'
+import { Route as CodeIndexImport } from './routes/code/index'
+import { Route as CodeTokenImport } from './routes/code/$token'
 
 // Create/Update Routes
 
-const CodeRoute = CodeImport.update({
-  path: '/code',
+const CodeIndexRoute = CodeIndexImport.update({
+  path: '/code/',
+  getParentRoute: () => rootRoute,
+} as any)
+
+const CodeTokenRoute = CodeTokenImport.update({
+  path: '/code/$token',
   getParentRoute: () => rootRoute,
 } as any)
 
@@ -24,11 +30,18 @@ const CodeRoute = CodeImport.update({
 
 declare module '@tanstack/react-router' {
   interface FileRoutesByPath {
-    '/code': {
-      id: '/code'
+    '/code/$token': {
+      id: '/code/$token'
+      path: '/code/$token'
+      fullPath: '/code/$token'
+      preLoaderRoute: typeof CodeTokenImport
+      parentRoute: typeof rootRoute
+    }
+    '/code/': {
+      id: '/code/'
       path: '/code'
       fullPath: '/code'
-      preLoaderRoute: typeof CodeImport
+      preLoaderRoute: typeof CodeIndexImport
       parentRoute: typeof rootRoute
     }
   }
@@ -37,33 +50,38 @@ declare module '@tanstack/react-router' {
 // Create and export the route tree
 
 export interface FileRoutesByFullPath {
-  '/code': typeof CodeRoute
+  '/code/$token': typeof CodeTokenRoute
+  '/code': typeof CodeIndexRoute
 }
 
 export interface FileRoutesByTo {
-  '/code': typeof CodeRoute
+  '/code/$token': typeof CodeTokenRoute
+  '/code': typeof CodeIndexRoute
 }
 
 export interface FileRoutesById {
   __root__: typeof rootRoute
-  '/code': typeof CodeRoute
+  '/code/$token': typeof CodeTokenRoute
+  '/code/': typeof CodeIndexRoute
 }
 
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
-  fullPaths: '/code'
+  fullPaths: '/code/$token' | '/code'
   fileRoutesByTo: FileRoutesByTo
-  to: '/code'
-  id: '__root__' | '/code'
+  to: '/code/$token' | '/code'
+  id: '__root__' | '/code/$token' | '/code/'
   fileRoutesById: FileRoutesById
 }
 
 export interface RootRouteChildren {
-  CodeRoute: typeof CodeRoute
+  CodeTokenRoute: typeof CodeTokenRoute
+  CodeIndexRoute: typeof CodeIndexRoute
 }
 
 const rootRouteChildren: RootRouteChildren = {
-  CodeRoute: CodeRoute,
+  CodeTokenRoute: CodeTokenRoute,
+  CodeIndexRoute: CodeIndexRoute,
 }
 
 export const routeTree = rootRoute
@@ -78,11 +96,15 @@ export const routeTree = rootRoute
     "__root__": {
       "filePath": "__root.tsx",
       "children": [
-        "/code"
+        "/code/$token",
+        "/code/"
       ]
     },
-    "/code": {
-      "filePath": "code.tsx"
+    "/code/$token": {
+      "filePath": "code/$token.tsx"
+    },
+    "/code/": {
+      "filePath": "code/index.tsx"
     }
   }
 }

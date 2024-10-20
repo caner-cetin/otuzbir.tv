@@ -10,34 +10,38 @@ import type AceEditor from 'react-ace';
 import { LANGUAGE_CONFIG } from 'src/editor/languages';
 import { LanguageId } from 'src/services/settings';
 
-interface HeaderProps {
+interface HeaderPropsBase {
   code: React.MutableRefObject<AceEditor | null>;
   user: KindeUser | undefined;
   languageID: number;
   languages: LanguagesResponse;
-  setLanguageID: React.Dispatch<React.SetStateAction<number>>;
+  setLanguageID?: React.Dispatch<React.SetStateAction<number>>;
   onLogin: (options: AuthOptions) => Promise<void>;
   onSignup: (options: AuthOptions) => Promise<void>;
   onLogout: () => void;
+}
+
+interface HeaderPropsEditor extends HeaderPropsBase {
+  displayingSharedCode: false;
   onSubmit: () => void;
-  onSubmitWithStdin: () => void;
+  onSubmitWithStdin?: () => void;
   onClearSubmissions: () => void;
 }
 
-export default function Header({
-  code,
-  user,
-  languages,
-  languageID,
-  setLanguageID,
-  onLogin,
-  onSignup,
-  onLogout,
-  onSubmit,
-  onSubmitWithStdin,
-  onClearSubmissions,
-}: HeaderProps) {
+interface HeaderPropsShared extends HeaderPropsBase {
+  displayingSharedCode: true;
+}
+
+type HeaderProps = HeaderPropsEditor | HeaderPropsShared;
+
+export default function Header(props: HeaderProps) {
   const [showSettings, setShowSettings] = useState(false); // State to control modal
+  const { code, user, languageID, languages, setLanguageID, onLogin, onSignup, onLogout, displayingSharedCode } = props;
+  // wont be used in shared code, but we declare anyways
+  const onSubmit = (props as HeaderPropsEditor).onSubmit;
+  const onSubmitWithStdin = (props as HeaderPropsEditor).onSubmitWithStdin;
+  const onClearSubmissions = (props as HeaderPropsEditor).onClearSubmissions;
+
   const loginOpts: AuthOptions = {};
   const signupOpts: AuthOptions = {};
 
@@ -56,29 +60,38 @@ export default function Header({
   return (
     <header className="w-full bg-[#211e20] border-b border-[#555568] p-2">
       <div className="flex justify-between items-center">
-        <div className="text-[#a0a08b]">PIP-OS v7.1.0.8 - {languageID === LanguageId.Markdown ? "README" : LANGUAGE_CONFIG[languageID]?.runnerName}</div>
+        <div className="text-[#a0a08b]">PIP-OS v7.1.0.8 - {languageID === LanguageId.Markdown ? "README" : LANGUAGE_CONFIG[languageID]?.runnerName} {displayingSharedCode ? "- READ ONLY" : ""}</div>
         <div className="flex items-center space-x-2">
-          <Button variant="link" style={{ color: '#e9efec' }} className="hover:bg-[#504945] transition-colors duration-200" onClick={onSubmit}>
-            Execute
-          </Button>
-          <Button variant="link" style={{ color: '#e9efec' }} className="hover:bg-[#504945] transition-colors duration-200" onClick={onSubmitWithStdin}>
-            Execute with Stdin
-          </Button>
-          <Button variant="link" style={{ color: '#e9efec' }} className="hover:bg-[#cc241d] transition-colors duration-200" onClick={onClearSubmissions}>
-            Clear Local Submissions
-          </Button>
-          <Dropdown as={ButtonGroup}>
-            <Dropdown.Toggle variant="link" style={{ color: '#e9efec' }} className="hover:bg-[#504945] transition-colors duration-200">
-              Languages
-            </Dropdown.Toggle>
-            <Dropdown.Menu className="border-[#555568] scrollable-dropdown">
-              {languages.map((lang) => (
-                <Dropdown.Item key={lang.id} className="text-[#e9efec] hover:bg-[#504945]" onClick={() => setLanguageID(lang.id)}>
-                  {lang.name}
-                </Dropdown.Item>
-              ))}
-            </Dropdown.Menu>
-          </Dropdown>
+          {!displayingSharedCode ? (
+            <div>
+              <Button variant="link" style={{ color: '#e9efec' }} className="hover:bg-[#504945] transition-colors duration-200" onClick={onSubmit}>
+                Execute
+              </Button>
+              <Button variant="link" style={{ color: '#e9efec' }} className="hover:bg-[#504945] transition-colors duration-200" onClick={onSubmitWithStdin}>
+                Execute with Stdin
+              </Button>
+              <Button variant="link" style={{ color: '#e9efec' }} className="hover:bg-[#cc241d] transition-colors duration-200" onClick={onClearSubmissions}>
+                Clear Local Submissions
+              </Button>
+              <Dropdown as={ButtonGroup}>
+                <Dropdown.Toggle variant="link" style={{ color: '#e9efec' }} className="hover:bg-[#504945] transition-colors duration-200">
+                  Languages
+                </Dropdown.Toggle>
+                <Dropdown.Menu className="border-[#555568] scrollable-dropdown">
+                  {languages.map((lang) => (
+                    // @ts-ignore
+                    <Dropdown.Item key={lang.id} className="text-[#e9efec] hover:bg-[#504945]" onClick={() => setLanguageID(lang.id)}>
+                      {lang.name}
+                    </Dropdown.Item>
+                  ))}
+                </Dropdown.Menu>
+              </Dropdown>
+            </div>
+          ) :
+            <div>
+              {/* empty for now, submitted by user X in later. todo.*/}
+            </div>
+          }
         </div>
         <div className="flex items-center">
           {user ? (
