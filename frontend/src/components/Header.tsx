@@ -5,7 +5,7 @@ import ButtonGroup from 'react-bootstrap/ButtonGroup';
 import Button from 'react-bootstrap/Button';
 import type { AuthOptions, KindeUser } from '@kinde-oss/kinde-auth-pkce-js';
 import type { LanguagesResponse } from 'src/hooks/useJudge';
-import SettingsModal from './SettingsModal';
+import SettingsModal from './settings/SettingsModal';
 import type AceEditor from 'react-ace';
 import { LANGUAGE_CONFIG } from 'src/editor/languages';
 import { LanguageId } from 'src/services/settings';
