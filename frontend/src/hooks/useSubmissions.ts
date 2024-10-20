@@ -2,6 +2,7 @@ import { toast } from "react-hot-toast";
 import type { JudgeAPISpec } from "./useJudge";
 import type ReactAce from "react-ace/lib/ace";
 import { LANGUAGE_CONFIG } from "src/editor/languages";
+import { LanguageId } from "src/services/settings";
 
 export interface StoredSubmission {
 	localId: number;
@@ -44,6 +45,10 @@ export namespace Submissions {
 		JudgeAPI: JudgeAPISpec,
 		setSubmissions: React.Dispatch<React.SetStateAction<StoredSubmission[]>>,
 	): Promise<void> {
+		if (languageId === LanguageId.Markdown) {
+			toast.error("what did you expect?");
+			return;
+		}
 		if (editor === null) {
 			return;
 		}
@@ -73,8 +78,12 @@ export namespace Submissions {
 		languageId: number,
 		setSubmissions: React.Dispatch<React.SetStateAction<StoredSubmission[]>>,
 	): Promise<void> {
+		if (languageId === LanguageId.Markdown) {
+			toast.error("what did you expect?");
+			return;
+		}
 		if (!JudgeAPI.submitCode.data?.id) {
-			toast.error("No submission ID available");
+			toast.error("No submission available, submit code first");
 			return;
 		}
 		try {

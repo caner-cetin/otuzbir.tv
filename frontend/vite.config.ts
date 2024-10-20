@@ -33,4 +33,7 @@ export default defineConfig({
 			allow: [".."],
 		},
 	},
+	define: {
+		"process.env.README_PATH": JSON.stringify("/readme.md"),
+	},
 });

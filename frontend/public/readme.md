@@ -1,8 +1,5 @@
 
-- [supported languages](#supported-languages)
-  - [available packages](#available-packages)
-  - [notes](#notes)
-- [settings](#settings)
+## contents
 
 ## supported languages
 
@@ -62,9 +59,3 @@ wip
 ### notes
 
 - Basic and Octave has no modes, so they are rendered as plain text.
-
-## settings
-
-- Color Theme
-Set to Tomorrow Night Eighties by default. There are approximately 36 color themes, and you can change them in settings.
-![demo theme](static/theme.gif)

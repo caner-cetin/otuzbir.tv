@@ -3,77 +3,42 @@ import Modal from 'react-bootstrap/Modal';
 import Button from 'react-bootstrap/Button';
 import { Dropdown } from 'react-bootstrap';
 import type AceEditor from 'react-ace';
-import toast from 'react-hot-toast';
+import { RenderFirst, Settings, Themes, useColorTheme, useRenderFirst } from 'src/services/settings';
+import { initializeAce } from 'src/editor/config';
 
 interface SettingsModalProps {
   code: React.MutableRefObject<AceEditor | null>;
+  languageID: number;
+  setLanguageID: React.Dispatch<React.SetStateAction<number>>;
   show: boolean;
   onHide: () => void;
 }
 
-/* 
-  Key is the mode identifier string, value is the base64 encoded string of the source code
-*/
-export type CodeStorage = Record<string, string | undefined>
-export enum Settings {
-  COLOR_THEME = "colorTheme",
-  CODE_STORAGE = "codeStorage",
-  LANGUAGE_ID = "languageID"
-}
 
-export enum Themes {
-  Chrome = 'chrome',
-  Clouds = 'clouds',
-  CrimsonEditor = 'crimson_editor',
-  Dawn = 'dawn',
-  Dreamweaver = 'dreamweaver',
-  Eclipse = 'eclipse',
-  GitHub = 'github',
-  IPlastic = 'iplastic',
-  KatzenMilch = 'katzenmilch',
-  Kuroir = 'kuroir',
-  SolarizedLight = 'solarized_light',
-  SQLServer = 'sqlserver',
-  TextMate = 'textmate',
-  Tomorrow = 'tomorrow',
-  XCode = 'xcode',
-  Ambiance = 'ambiance',
-  Chaos = 'chaos',
-  CloudsMidnight = 'clouds_midnight',
-  Cobalt = 'cobalt',
-  Dracula = 'dracula',
-  GreenOnBlack = 'gob',
-  Gruvbox = 'gruvbox',
-  IdleFingers = 'idle_fingers',
-  KrTheme = 'kr_theme',
-  Merbivore = 'merbivore',
-  MerbivoreSoft = 'merbivore_soft',
-  MonoIndustrial = 'mono_industrial',
-  Monokai = 'monokai',
-  PastelOnDark = 'pastel_on_dark',
-  SolarizedDark = 'solarized_dark',
-  Terminal = 'terminal',
-  TomorrowNight = 'tomorrow_night',
-  TomorrowNightBlue = 'tomorrow_night_blue',
-  TomorrowNightBright = 'tomorrow_night_bright',
-  TomorrowNightEighties = 'tomorrow_night_eighties',
-  Twilight = 'twilight',
-  VibrantInk = 'vibrant_ink'
-}
-export default function SettingsModal({ code, show, onHide }: SettingsModalProps) {
-  const [colorTheme, setColorTheme] = useState(localStorage.getItem(Settings.COLOR_THEME) || Themes.TomorrowNightEighties);
+export default function SettingsModal({ code, languageID, setLanguageID, show, onHide }: SettingsModalProps) {
+  const [colorTheme, setColorTheme] = useColorTheme();
+  const [oldColorTheme, setOldColorTheme] = useState(colorTheme)
+  const [renderFirst, setRenderFirst] = useRenderFirst()
+  const [oldRenderFirst, setOldRenderFirst] = useState(renderFirst)
   // biome-ignore lint/correctness/useExhaustiveDependencies: <explanation>
   useEffect(() => {
-    if (!code.current) {
-      toast.error('Editor canvas is not initialized, refresh the page. Sowwy.');
-      return
+    if (oldColorTheme !== colorTheme) {
+      setOldColorTheme(colorTheme)
+      if (!code.current) {
+        initializeAce(code, colorTheme, languageID);
+      }
+      code.current?.editor?.setTheme(`ace/theme/${colorTheme}`);
+      localStorage.setItem(Settings.COLOR_THEME, colorTheme);
     }
-    if (!code.current.editor) {
-      toast.error('Code editor not initialized, refresh the page. Sowwy.');
-    }
-    code.current?.editor?.setTheme(`ace/theme/${colorTheme}`);
-    localStorage.setItem(Settings.COLOR_THEME, colorTheme);
   }, [colorTheme])
+
+  // biome-ignore lint/correctness/useExhaustiveDependencies: <no need to re render on changing old value>
+  useEffect(() => {
+    if (oldRenderFirst !== renderFirst) {
+      setOldRenderFirst(renderFirst)
+      localStorage.setItem(Settings.RENDER_FIRST, JSON.stringify(renderFirst))
+    }
+  }, [renderFirst])
 
 
   return (
@@ -125,6 +90,16 @@ export default function SettingsModal({ code, show, onHide }: SettingsModalProps
             <Dropdown.Item onClick={() => setColorTheme(Themes.TomorrowNightEighties)}>Tomorrow Night Eighties</Dropdown.Item>
             <Dropdown.Item onClick={() => setColorTheme(Themes.Twilight)}>Twilight</Dropdown.Item>
             <Dropdown.Item onClick={() => setColorTheme(Themes.VibrantInk)}>Vibrant Ink</Dropdown.Item>
+          </Dropdown.Menu>
+        </Dropdown>
+        <Dropdown>
+          <Dropdown.Toggle id='dropdown-basic' variant='link' style={{ color: '#e9efec' }} className='hover:bg-[#504945] transition-colors duration-200'>
+            Set Initial View
+          </Dropdown.Toggle>
+
+          <Dropdown.Menu className='scrollable-dropdown'>
+            <Dropdown.Item onClick={() => setRenderFirst(RenderFirst.WelcomeMarkdown)}>README</Dropdown.Item>
+            <Dropdown.Item onClick={() => setRenderFirst(RenderFirst.CodeEditor)}>Default Editor</Dropdown.Item>
           </Dropdown.Menu>
         </Dropdown>
       </Modal.Body>

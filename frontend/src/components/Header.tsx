@@ -8,6 +8,7 @@ import type { LanguagesResponse } from 'src/hooks/useJudge';
 import SettingsModal from './SettingsModal';
 import type AceEditor from 'react-ace';
 import { LANGUAGE_CONFIG } from 'src/editor/languages';
+import { LanguageId } from 'src/services/settings';
 
 interface HeaderProps {
   code: React.MutableRefObject<AceEditor | null>;
@@ -55,7 +56,7 @@ export default function Header({
   return (
     <header className="w-full bg-[#211e20] border-b border-[#555568] p-2">
       <div className="flex justify-between items-center">
-        <div className="text-[#a0a08b]">PIP-OS v7.1.0.8 - {LANGUAGE_CONFIG[languageID]?.runnerName}</div>
+        <div className="text-[#a0a08b]">PIP-OS v7.1.0.8 - {languageID === LanguageId.Markdown ? "README" : LANGUAGE_CONFIG[languageID]?.runnerName}</div>
         <div className="flex items-center space-x-2">
           <Button variant="link" style={{ color: '#e9efec' }} className="hover:bg-[#504945] transition-colors duration-200" onClick={onSubmit}>
             Execute
@@ -104,7 +105,7 @@ export default function Header({
           <div className="text-[#a0a08b]">{new Date().toLocaleTimeString()}</div>
         </div>
       </div>
-      <SettingsModal show={showSettings} onHide={() => setShowSettings(false)} code={code} />
+      <SettingsModal show={showSettings} onHide={() => setShowSettings(false)} code={code} languageID={languageID} setLanguageID={setLanguageID} />
     </header>
   );
 }
