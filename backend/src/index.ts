@@ -33,7 +33,7 @@ await app.register(AllRoutes, {
 	useColors: true,
 });
 await app.register(cors, {
-	origin: process.env.NODE_ENV === "development" ? true : [/\otuzbir\.tv$/],
+	origin: process.env.NODE_ENV === "development" ? true : [/\cansu\.dev$/],
 	methods: ["GET", "POST", "PUT", "DELETE", "OPTIONS", "HEAD"],
 	credentials: true,
 });

@@ -1,7 +1,5 @@
 import { toast } from "react-hot-toast";
 import type { JudgeAPISpec } from "./useJudge";
-import ace from "react-ace";
-import type AceEditor from "react-ace";
 import type ReactAce from "react-ace/lib/ace";
 import { LANGUAGE_CONFIG } from "src/editor/languages";
 

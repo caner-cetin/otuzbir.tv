@@ -11,19 +11,29 @@ import {
   Calendar,
   Terminal,
 } from "lucide-react";
-import { BellSimpleSlash, Bug, MaskSad, QuestionMark, Queue } from '@phosphor-icons/react'
+import { BellSimpleSlash, Bug, ClockClockwise, MaskSad, QuestionMark, Queue } from '@phosphor-icons/react'
 import type { GetSubmissionResponse } from "src/hooks/useJudge";
 import { BarChart, Bar, XAxis, YAxis, Tooltip, ResponsiveContainer } from 'recharts';
 import type { StoredSubmission } from "src/hooks/useSubmissions";
+import type AceEditor from "react-ace";
+import { LANGUAGE_CONFIG } from "src/editor/languages";
+import toast from "react-hot-toast";
+import { CodeStorage, Settings } from "./SettingsModal";
 
 interface OutputModalProps {
+  code: React.MutableRefObject<AceEditor | null>;
   submissions: StoredSubmission[];
   getSubmission: (token: string) => Promise<GetSubmissionResponse>;
+  setLanguageId: React.Dispatch<React.SetStateAction<number>>;
+  setSourceCode: React.Dispatch<React.SetStateAction<string | null>>;
 }
 
 const OutputModal: React.FC<OutputModalProps> = ({
+  code,
   submissions,
   getSubmission,
+  setLanguageId,
+  setSourceCode,
 }) => {
   // Don't set an initial active tab
   const [activeTab, setActiveTab] = useState<string | null>(null);
@@ -82,6 +92,15 @@ const OutputModal: React.FC<OutputModalProps> = ({
       refetch();
     }
   };
+
+  const restoreCode = () => {
+    if (!submissionResult) {
+      toast.error("No submission result to restore code from")
+      return
+    }
+    setLanguageId(submissionResult.language.id);
+    setSourceCode(atob(submissionResult.source_code));
+  }
 
   const getStatusIcon = (id: number) => {
     switch (id) {
@@ -196,6 +215,14 @@ const OutputModal: React.FC<OutputModalProps> = ({
             {refetchInterval && (
               <span className="text-sm text-gray-400 ml-2">
                 Refreshing... Interval: {refetchInterval}ms
+              </span>
+            )}
+            {!refetchInterval && (
+              <span className="text-sm text-gray-400 ml-2">
+                Restore Code
+                <Button variant="outline-secondary ml-2" onClick={() => restoreCode()}>
+                  <ClockClockwise />
+                </Button>
               </span>
             )}
           </h4>
