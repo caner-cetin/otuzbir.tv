@@ -10,8 +10,7 @@
 Thanks to Ace Editor, we have the following features:
 
 - Autocomplete and Snippets
-![demo autocomplete](static/autocomplete.gif)
-Even on obscure languages like COBOL, you can still get autocomplete.
+![demo autocomplete](static/autocomplete-1.gif)
 - Network Friendly
 This is what is most important to me in this project. You might say "dude we have unlimited gigabyte fiber internets who cares", but you can shove in all AI craps, popups, buzzwords,nothing will make me feel good as much as my sweet darling. From Haskell to NASM to Prolog to Lua, run everything with under 2 MB of network, all autocompletes and snippets included.
 
