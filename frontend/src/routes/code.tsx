@@ -18,12 +18,12 @@ import Header from "../components/Header";
 import OutputModal from "../components/OutputModal";
 import StdinModal from "../components/StdinModal";
 
-await import("ace-builds/src-noconflict/ext-code_lens");
-await import("ace-builds/src-noconflict/ext-error_marker");
-await import("ace-builds/src-noconflict/ext-inline_autocomplete");
-await import("ace-builds/src-noconflict/ext-language_tools");
-await import('ace-builds/src-noconflict/ext-settings_menu');
-await import("ace-builds/src-noconflict/ext-statusbar");
+import "ace-builds/src-noconflict/ext-code_lens";
+import "ace-builds/src-noconflict/ext-error_marker";
+import "ace-builds/src-noconflict/ext-inline_autocomplete";
+import "ace-builds/src-noconflict/ext-language_tools";
+import 'ace-builds/src-noconflict/ext-settings_menu';
+import "ace-builds/src-noconflict/ext-statusbar";
 
 export const Route = createFileRoute("/code")({
   component: MainPage,

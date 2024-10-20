@@ -49,8 +49,6 @@ work in progress, even readme lol.
 
 ### available packages
 
-warning: there are ML libraries installed in code runners, but memory is limited to 125 MB per execution, and each execution is limited to 5 seconds. if you need more, or find limits too low, please contact me.
-
 - python
   - python2 and 3
   - mlxtend
