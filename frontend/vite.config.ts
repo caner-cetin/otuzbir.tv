@@ -2,10 +2,11 @@ import { defineConfig } from "vite";
 import react from "@vitejs/plugin-react";
 import tsconfigPaths from "vite-tsconfig-paths";
 import { TanStackRouterVite } from "@tanstack/router-plugin/vite";
+import commonjs from "vite-plugin-commonjs";
 import path from "node:path";
 
 export default defineConfig({
-	plugins: [react(), tsconfigPaths(), TanStackRouterVite()],
+	plugins: [react(), tsconfigPaths(), TanStackRouterVite(), commonjs()],
 	resolve: {
 		alias: {
 			ace: path.resolve(

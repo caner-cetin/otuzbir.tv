@@ -17,11 +17,13 @@ import { Route as CodeTokenImport } from './routes/code/$token'
 // Create/Update Routes
 
 const CodeIndexRoute = CodeIndexImport.update({
+  id: '/code/',
   path: '/code/',
   getParentRoute: () => rootRoute,
 } as any)
 
 const CodeTokenRoute = CodeTokenImport.update({
+  id: '/code/$token',
   path: '/code/$token',
   getParentRoute: () => rootRoute,
 } as any)

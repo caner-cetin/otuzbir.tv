@@ -1,8 +1,34 @@
 
+- [features](#features)
 - [supported languages](#supported-languages)
   - [available packages](#available-packages)
   - [notes](#notes)
 - [settings](#settings)
+
+## features
+
+Thanks to Ace Editor, we have the following features:
+
+- Autocomplete and Snippets
+![demo autocomplete](static/autocomplete.gif)
+Even on obscure languages like COBOL, you can still get autocomplete.
+- Network Friendly
+This is what is most important to me in this project. You might say "dude we have unlimited gigabyte fiber internets who cares", but you can shove in all AI craps, popups, buzzwords,nothing will make me feel good as much as my sweet darling. From Haskell to NASM to Prolog to Lua, run everything with under 2 MB of network, all autocompletes and snippets included.
+
+Here is a comparison with JDoodle. With no cache, from initial load to output, JDoodle consumes 3.05 megabytes. And this is only for COBOL. My precious darling loads needs only 900 KB of network initially, 
+TO LOAD ALL LANGUAGES. Language switch only takes 200 kbs, where as JDoodle transfers 6 MB of network just to switch from COBOL to Fortran. And, JDoodle does not autocompletes, no snippets.
+
+here, check this video: https://youtu.be/lRXkBeL8Hzs (execution server is running on remote, somewhere in Poland, during all demos)
+
+- Share Code Output
+![demo share code](static/share.gif)
+- Execution and Loading Speed
+![demo execution](static/exec.gif)
+
+- Dynamic Color Theme
+![demo theme](static/theme.gif)
+
+more to come, wip.
 
 ## supported languages
 
@@ -62,6 +88,7 @@ wip
 ### notes
 
 - Basic and Octave has no modes, so they are rendered as plain text.
+- readme.md in editor is the same as this file except there are no gifs.
 
 ## settings
 

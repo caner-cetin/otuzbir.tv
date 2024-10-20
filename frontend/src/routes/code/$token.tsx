@@ -9,16 +9,14 @@ import { LANGUAGE_CONFIG } from 'src/editor/languages'
 import { getSubmission, useJudge } from 'src/hooks/useJudge'
 import Header from '../../components/Header'
 import OutputModal from '../../components/OutputModal'
+import 'ace-builds/src-noconflict/ext-language_tools'
 import 'ace-builds/src-noconflict/ext-code_lens'
 import 'ace-builds/src-noconflict/ext-error_marker'
 import 'ace-builds/src-noconflict/ext-inline_autocomplete'
-import 'ace-builds/src-noconflict/ext-language_tools'
 import 'ace-builds/src-noconflict/ext-settings_menu'
 import 'ace-builds/src-noconflict/ext-statusbar'
 import {
-  type CodeStorage,
   LanguageId,
-  Settings,
   useColorTheme,
 } from 'src/services/settings'
 import { useQuery } from '@tanstack/react-query'
@@ -125,9 +123,6 @@ export default function SharedCodePage() {
                 name="ace-editor"
                 setOptions={{
                   readOnly: true,
-                  enableBasicAutocompletion: true,
-                  enableLiveAutocompletion: true,
-                  enableSnippets: true,
                   showLineNumbers: true,
                   tabSize: 2,
                 }}

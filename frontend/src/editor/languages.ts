@@ -19,7 +19,12 @@ interface LanguageConfig {
 }
 export const LANGUAGE_CONFIG: Record<number, LanguageConfig> = {
 	74: {
-		extensionModule: () => import("ace-builds/src-noconflict/mode-typescript"),
+		extensionModule: () => {
+			return Promise.all([
+				require("ace-builds/src-noconflict/snippets/typescript"),
+				require("ace-builds/src-noconflict/mode-typescript"),
+			]);
+		},
 		defaultText: `console.log('deniz abi kornaya bas')`,
 		runnerName: "TypeScript (3.7.4)",
 		mode: "typescript",
@@ -166,11 +171,48 @@ int main() {
 	77: {
 		// COBOL (GnuCOBOL 2.2)
 		extensionModule: () => import("ace-builds/src-noconflict/mode-cobol"),
-		defaultText: `IDENTIFICATION DIVISION.
-PROGRAM-ID. HELLO-WORLD.
-PROCEDURE DIVISION.
-    DISPLAY "deniz abi kornaya bas".
-    STOP RUN.
+		defaultText: `*> ***************************************************************
+       *> Purpose:   Say hello to GNU Cobol
+       *> Tectonics: cobc -x bigworld.cob
+       *> ***************************************************************
+       identification division.
+       program-id. bigworld.
+
+       environment division.
+       configuration section.
+
+       data division.
+       working-storage section.
+       01 hello                pic $$$$,$$$,$$$,$$$,$$$,$$$.99.
+       01 world                pic s9(18)v99 value zero.
+       01 people               pic ZZZ,ZZZ,ZZZ,ZZ9.
+       01 persons              pic 9(18) value 7182044470.
+       01 each                 pic 9(5)v99 value 26202.42.
+
+       procedure division.
+
+       multiply persons by each giving world
+           on size error
+             display "We did it.  We broke the world bank" 
+       end-multiply.
+
+       move world to hello
+       move persons to people
+
+       display "Hello, world".
+       display " ".
+
+       display "On " function locale-date(20130927)
+               " at " function locale-time(120000)
+               ", according to UN estimates:".
+
+       display "You were home to some " people " people,"
+               " with an estimated worth of " hello.
+
+       goback.
+       end program bigworld.
+
+
     `,
 		runnerName: "COBOL (GnuCOBOL 2.2)",
 		mode: "cobol",
@@ -255,7 +297,26 @@ func main() {
 	61: {
 		// Haskell (GHC 8.8.1)
 		extensionModule: () => import("ace-builds/src-noconflict/mode-haskell"),
-		defaultText: `main = putStrLn "deniz abi kornaya bas"`,
+		defaultText: `-- Type annotation (optional)
+fib :: Int -> Integer
+ 
+-- With self-referencing data
+fib n = fibs !! n
+        where fibs = 0 : scanl (+) 1 fibs
+        -- 0,1,1,2,3,5,...
+ 
+-- Same, coded directly
+fib n = fibs !! n
+        where fibs = 0 : 1 : next fibs
+              next (a : t@(b:_)) = (a+b) : next t
+ 
+-- Similar idea, using zipWith
+fib n = fibs !! n
+        where fibs = 0 : 1 : zipWith (+) fibs (tail fibs)
+ 
+-- Using a generator function
+fib n = fibs (0,1) !! n
+        where fibs (a,b) = a : fibs (b,a+b)`,
 		runnerName: "Haskell (GHC 8.8.1)",
 		mode: "haskell",
 		iconClass: "devicon-haskell-plain",
@@ -293,7 +354,44 @@ func main() {
 	64: {
 		// Lua (5.3.5)
 		extensionModule: () => import("ace-builds/src-noconflict/mode-lua"),
-		defaultText: `print("deniz abi kornaya bas")`,
+		defaultText: `--[[--
+num_args takes in 5.1 byte code and extracts the number of arguments
+from its function header.
+--]]--
+
+function int(t)
+	return t:byte(1)+t:byte(2)*0x100+t:byte(3)*0x10000+t:byte(4)*0x1000000
+end
+
+function num_args(func)
+	local dump = string.dump(func)
+	local offset, cursor = int(dump:sub(13)), offset + 26
+	--Get the params and var flag (whether there's a ... in the param)
+	return dump:sub(cursor):byte(), dump:sub(cursor+1):byte()
+end
+
+-- Usage:
+num_args(function(a,b,c,d, ...) end) -- return 4, 7
+
+-- Python styled string format operator
+local gm = debug.getmetatable("")
+
+gm.__mod=function(self, other)
+    if type(other) ~= "table" then other = {other} end
+    for i,v in ipairs(other) do other[i] = tostring(v) end
+    return self:format(unpack(other))
+end
+
+print([===[
+    blah blah %s, (%d %d)
+]===]%{"blah", num_args(int)})
+
+--[=[--
+table.maxn is deprecated, use # instead.
+--]=]--
+print(table.maxn{1,2,[4]=4,[8]=8}) -- outputs 8 instead of 2
+
+print(5 --[[ blah ]])`,
 		runnerName: "Lua (5.3.5)",
 		mode: "lua",
 		iconClass: "devicon-lua-plain",
@@ -361,15 +459,36 @@ echo "deniz abi kornaya bas";
 	69: {
 		// Prolog (GNU Prolog 1.4.5)
 		extensionModule: () => import("ace-builds/src-noconflict/mode-prolog"),
-		defaultText: `:- initialization(main).
-main :- write('deniz abi kornaya bas'), nl.`,
+		defaultText: `partition([], _, [], []).
+partition([X|Xs], Pivot, Smalls, Bigs) :-
+    (   X @< Pivot ->
+        Smalls = [X|Rest],
+        partition(Xs, Pivot, Rest, Bigs)
+    ;   Bigs = [X|Rest],
+        partition(Xs, Pivot, Smalls, Rest)
+    ).
+ 
+quicksort([])     --> [].
+quicksort([X|Xs]) -->
+    { partition(Xs, X, Smaller, Bigger) },
+    quicksort(Smaller), [X], quicksort(Bigger).
+
+perfect(N) :-
+    between(1, inf, N), U is N // 2,
+    findall(D, (between(1,U,D), N mod D =:= 0), Ds),
+    sumlist(Ds, N).`,
 		runnerName: "Prolog (GNU Prolog 1.4.5)",
 		mode: "prolog",
 		iconClass: "devicon-prolog-plain",
 	},
 	70: {
 		// Python (2.7.17)
-		extensionModule: () => import("ace-builds/src-noconflict/mode-python"),
+		extensionModule: () =>
+			Promise.all([
+				import("ace-builds/src-noconflict/mode-python"),
+				import("ace-builds/src-noconflict/snippets/python"),
+			]),
+
 		defaultText: `print("deniz abi kornaya bas")`,
 		runnerName: "Python (2.7.17)",
 		mode: "python",

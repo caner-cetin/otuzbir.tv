@@ -10,4 +10,3 @@ dist
 frontend/dependency-graph.svg
 frontend/.dependency-cruiser.cjs
 fonts
-private

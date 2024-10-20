@@ -2,9 +2,7 @@ import React from "react";
 import { useState, useRef, useEffect } from "react";
 import { Tab, Tabs, Spinner, Button } from "react-bootstrap";
 import {
-  Query,
   useQuery,
-  useQueryClient,
   type UseQueryResult,
 } from "@tanstack/react-query";
 import {
@@ -34,8 +32,8 @@ import {
   ResponsiveContainer,
 } from "recharts";
 import type { StoredSubmission } from "src/hooks/useSubmissions";
-import type AceEditor from "react-ace";
 import toast from "react-hot-toast";
+import ShareButton from "./ShareButton";
 
 interface OutputModalPropBase {
   displayingSharedCode: boolean;
@@ -268,7 +266,7 @@ const OutputModal: React.FC<OutputModalProps> = (props) => {
     return (
       <div className="bg-[#2c2a2a] rounded-lg shadow-lg overflow-auto">
         <div className="flex items-center justify-between mb-2">
-          <h4 className="text-lg font-bold flex items-center">
+          <h4 className="text-lg font-bold flex items-center relative w-full">
             {getStatusIcon(submissionResult.status.id)}
             <span className="ml-2">
               {submissionResult.status.id === 3
@@ -281,15 +279,17 @@ const OutputModal: React.FC<OutputModalProps> = (props) => {
               </span>
             )}
             {(!refetchInterval && !props.displayingSharedCode) && (
-              <span className="text-sm text-gray-400 ml-2">
-                Restore Code
-                <Button
-                  variant="outline-secondary ml-2"
-                  onClick={() => restoreCode()}
-                >
-                  <ClockClockwise />
-                </Button>
-              </span>
+              <div className="flex items-center ml-auto">
+                <span className="text-sm text-gray-400">
+                  <Button
+                    variant="outline-secondary"
+                    onClick={() => restoreCode()}
+                  >
+                    <ClockClockwise alt="Restore Code" />
+                  </Button>
+                </span>
+                <ShareButton token={submissionResult.token} />
+              </div>
             )}
           </h4>
         </div>

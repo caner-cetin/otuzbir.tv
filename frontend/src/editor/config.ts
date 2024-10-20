@@ -1,21 +1,16 @@
-import ace from "ace-builds";
 import type AceEditor from "react-ace";
 
 import { config } from "ace-builds";
 import { type CodeStorage, Settings } from "src/services/settings";
 import { LANGUAGE_CONFIG } from "./languages";
+import ace from "ace-builds";
 
 config.set(
 	"basePath",
 	"https://cdn.jsdelivr.net/npm/ace-builds@1.4.8/src-noconflict/",
 );
-config.setModuleUrl(
-	"ace/mode/javascript_worker",
-	"https://cdn.jsdelivr.net/npm/ace-builds@1.4.8/src-noconflict/worker-javascript.js",
-);
-
 export const configureAce = () => {
-	ace.config.set("basePath", "/node_modules/ace-builds/src-min-noconflict");
+	ace.require("ace/ext/language_tools");
 };
 
 export const initializeAce = (

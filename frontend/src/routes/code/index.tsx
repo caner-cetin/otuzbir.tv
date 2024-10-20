@@ -1,24 +1,95 @@
+import AceEditor from 'react-ace'
+// tried to dynamically import modes and snippets based on language ID, but it is impossible to make autocomplete and snippets work
+// network transfer for everything is at 650-700KB range, so, I think it is fine.
+import 'ace-builds/src-noconflict/ext-code_lens'
+import 'ace-builds/src-noconflict/ext-error_marker'
+import 'ace-builds/src-noconflict/mode-assembly_x86';
+import 'ace-builds/src-noconflict/mode-sh';
+import 'ace-builds/src-noconflict/mode-c_cpp';
+import 'ace-builds/src-noconflict/mode-csharp';
+import 'ace-builds/src-noconflict/mode-clojure';
+import 'ace-builds/src-noconflict/mode-cobol';
+import 'ace-builds/src-noconflict/mode-lisp';
+import 'ace-builds/src-noconflict/mode-d';
+import 'ace-builds/src-noconflict/mode-elixir';
+import 'ace-builds/src-noconflict/mode-erlang';
+import 'ace-builds/src-noconflict/mode-fsharp';
+import 'ace-builds/src-noconflict/mode-fortran';
+import 'ace-builds/src-noconflict/mode-golang';
+import 'ace-builds/src-noconflict/mode-groovy';
+import 'ace-builds/src-noconflict/mode-haskell';
+import 'ace-builds/src-noconflict/mode-java';
+import 'ace-builds/src-noconflict/mode-javascript';
+import 'ace-builds/src-noconflict/mode-kotlin';
+import 'ace-builds/src-noconflict/mode-lua';
+import 'ace-builds/src-noconflict/mode-objectivec';
+import 'ace-builds/src-noconflict/mode-perl';
+import 'ace-builds/src-noconflict/mode-ocaml';
+import 'ace-builds/src-noconflict/mode-pascal';
+import 'ace-builds/src-noconflict/mode-php';
+import 'ace-builds/src-noconflict/mode-prolog';
+import 'ace-builds/src-noconflict/mode-python';
+import 'ace-builds/src-noconflict/mode-r';
+import 'ace-builds/src-noconflict/mode-ruby';
+import 'ace-builds/src-noconflict/mode-rust';
+import 'ace-builds/src-noconflict/mode-scala';
+import 'ace-builds/src-noconflict/mode-sql';
+import 'ace-builds/src-noconflict/mode-swift';
+import 'ace-builds/src-noconflict/mode-typescript';
+import 'ace-builds/src-noconflict/snippets/vbscript';
+import 'ace-builds/src-noconflict/snippets/assembly_x86';
+import 'ace-builds/src-noconflict/snippets/sh';
+import 'ace-builds/src-noconflict/snippets/c_cpp';
+import 'ace-builds/src-noconflict/snippets/clojure';
+import 'ace-builds/src-noconflict/snippets/cobol';
+import 'ace-builds/src-noconflict/snippets/lisp';
+import 'ace-builds/src-noconflict/snippets/d';
+import 'ace-builds/src-noconflict/snippets/elixir';
+import 'ace-builds/src-noconflict/snippets/erlang';
+import 'ace-builds/src-noconflict/snippets/fsharp';
+import 'ace-builds/src-noconflict/snippets/fortran';
+import 'ace-builds/src-noconflict/snippets/golang';
+import 'ace-builds/src-noconflict/snippets/groovy';
+import 'ace-builds/src-noconflict/snippets/haskell';
+import 'ace-builds/src-noconflict/snippets/java';
+import 'ace-builds/src-noconflict/snippets/javascript';
+import 'ace-builds/src-noconflict/snippets/kotlin';
+import 'ace-builds/src-noconflict/snippets/lua';
+import 'ace-builds/src-noconflict/snippets/objectivec';
+import 'ace-builds/src-noconflict/snippets/ocaml';
+import 'ace-builds/src-noconflict/snippets/pascal';
+import 'ace-builds/src-noconflict/snippets/perl';
+import 'ace-builds/src-noconflict/snippets/csharp';
+import 'ace-builds/src-noconflict/snippets/prolog';
+import 'ace-builds/src-noconflict/snippets/python';
+import 'ace-builds/src-noconflict/snippets/r';
+import 'ace-builds/src-noconflict/snippets/ruby';
+import 'ace-builds/src-noconflict/snippets/rust';
+import 'ace-builds/src-noconflict/snippets/scala';
+import 'ace-builds/src-noconflict/snippets/sql';
+import 'ace-builds/src-noconflict/snippets/swift';
+import 'ace-builds/src-noconflict/snippets/typescript';
+import 'ace-builds/src-noconflict/snippets/php';
+import 'ace-builds/src-noconflict/snippets/vbscript';
+import 'ace-builds/src-noconflict/ext-language_tools'
+import 'ace-builds/src-noconflict/ext-settings_menu'
+import "ace-builds/src-min-noconflict/ext-searchbox";
+import 'ace-builds/src-noconflict/ext-statusbar'
+
 import { useKindeAuth } from '@kinde-oss/kinde-auth-react'
 import { createFileRoute } from '@tanstack/react-router'
 import React, { useEffect, useRef, useState } from 'react'
-import AceEditor from 'react-ace'
+import toast from 'react-hot-toast'
+import Markdown from 'react-markdown'
 import { Panel, PanelGroup, PanelResizeHandle } from 'react-resizable-panels'
+import rehypeSlug from 'rehype-slug'
+import remarkGfm from 'remark-gfm'
+import remarkToc from 'remark-toc'
 import CustomToast from 'src/components/CustomToast'
 import { initializeAce } from 'src/editor/config'
 import { LANGUAGE_CONFIG } from 'src/editor/languages'
 import { getSubmission, useJudge } from 'src/hooks/useJudge'
 import Submissions, { type StoredSubmission } from 'src/hooks/useSubmissions'
-import { getStoredSubmissions } from 'src/utils/submissionCounter'
-import Header from '../../components/Header'
-import OutputModal from '../../components/OutputModal'
-import StdinModal from '../../components/StdinModal'
-import 'ace-builds/src-noconflict/ext-code_lens'
-import 'ace-builds/src-noconflict/ext-error_marker'
-import 'ace-builds/src-noconflict/ext-inline_autocomplete'
-import 'ace-builds/src-noconflict/ext-language_tools'
-import 'ace-builds/src-noconflict/ext-settings_menu'
-import 'ace-builds/src-noconflict/ext-statusbar'
-import Markdown from 'react-markdown'
 import {
   type CodeStorage,
   LanguageId,
@@ -27,10 +98,10 @@ import {
   useColorTheme,
   useRenderFirst,
 } from 'src/services/settings'
-import remarkGfm from 'remark-gfm'
-import remarkToc from 'remark-toc'
-import rehypeSlug from 'rehype-slug'
-import toast from 'react-hot-toast'
+import { getStoredSubmissions } from 'src/utils/submissionCounter'
+import Header from '../../components/Header'
+import OutputModal from '../../components/OutputModal'
+import StdinModal from '../../components/StdinModal'
 
 export const Route = createFileRoute('/code/')({
   component: MainPage,
@@ -61,6 +132,7 @@ export default function MainPage() {
   const auth = useKindeAuth()
   const user = auth.user
   const JudgeAPI = useJudge()
+
 
   // biome-ignore lint/correctness/useExhaustiveDependencies: <we do not need to re-render upon language ID change>
   useEffect(() => {
@@ -232,10 +304,10 @@ export default function MainPage() {
                   ref={code}
                   theme="tomorrow_night_eighties"
                   name="ace-editor"
+                  enableBasicAutocompletion={true}
+                  enableLiveAutocompletion={true}
+                  enableSnippets={true}
                   setOptions={{
-                    enableBasicAutocompletion: true,
-                    enableLiveAutocompletion: true,
-                    enableSnippets: true,
                     showLineNumbers: true,
                     tabSize: 2,
                   }}
